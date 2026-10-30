@@ -1,6 +1,5 @@
 -- Hanzz_TSC Script
 -- Template by Chardox Core
-
 MEMORY_RANGE = nil
 MEMORY_NAME = nil
 USER_NAME = nil
@@ -8,8 +7,8 @@ USER_NAME = nil
 -- ==========================================
 -- KONFIGURASI FILE & URL PASTEBIN
 -- ==========================================
-local nameFile = "/sdcard/Hanzz_User.txt"
-local keyFile = "/sdcard/Hanzz_Key.txt"
+local nameFile = "/sdcard/Notes/Hanzz_User.txt"
+local keyFile = "/sdcard/Notes/Hanzz_Key.txt"
 local RAW_PASTEBIN_URL = "https://pastebin.com/raw/REnycS4A"
 
 -- ==========================================
@@ -739,7 +738,6 @@ end
 local function searchExactUID(uid)
   if not uid or uid == "" then return nil end
   gg.clearResults()
-  gg.setRanges(userSelectedMemory)
   -- Match exactly the UTF-8/ASCII bytes of the pasted UID, just like
   -- GameGuardian: TEXT -> UTF-8 -> UID -> Search.
   gg.searchNumber(uidToHexPattern(uid), gg.TYPE_BYTE, false, gg.SIGN_EQUAL, 0, -1, 0)
