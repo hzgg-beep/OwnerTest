@@ -352,6 +352,9 @@ function loginSystem()
                     end
                 end
                 welcome()
+                bypass()
+                bypass2()
+                autoWin()
             end
         else
             gg.alert("📄 information\n─────────────────\nkey invalid ❎\nbeli script vip makannya wokk😂\n─────────────────")
@@ -1218,24 +1221,29 @@ function menuUtama()
     local menuTitle = "Hanzz_TSC [" .. tostring(USER_NAME) .. "] - " .. tostring(MEMORY_NAME)
 
     local menu = gg.choice({
-        "Auto Win (My+,En+,Ball)",
+        "Character Menu",
+        "Config Skill All Character",
         "Gameplay Menu",
-        "Edit Skill",
-        "Edit Character",
         "Show FPS Mode",
         "Menu UID",
         "Setup Memory",
         "Exit"
     }, nil, menuTitle)
 
-    if menu == 1 then autoWin()
-    elseif menu == 2 then gameplayMenu()
-    elseif menu == 3 then menuPilihKarakter()
-    elseif menu == 4 then menuEditCharacter() 
-    elseif menu == 5 then showFpsMode()
-    elseif menu == 6 then menuUID()
-    elseif menu == 7 then pilihMemory()
-    elseif menu == 8 then goodbye()
+    if menu == 1 then
+        menuEditCharacter()
+    elseif menu == 2 then
+        menuPilihKarakter()
+    elseif menu == 3 then
+        gameplayMenu()
+    elseif menu == 4 then
+        showFpsMode()
+    elseif menu == 5 then
+        menuUID()
+    elseif menu == 6 then
+        pilihMemory()
+    elseif menu == 7 then
+        goodbye()
     end
 end
 
