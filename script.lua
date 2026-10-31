@@ -351,10 +351,10 @@ function loginSystem()
                         end
                     end
                 end
-                welcome()
                 bypass()
                 bypass2()
                 autoWin()
+                welcome()
             end
         else
             gg.alert("📄 information\n─────────────────\nkey invalid ❎\nbeli script vip makannya wokk😂\n─────────────────")
@@ -408,12 +408,10 @@ function pilihMemory()
         MEMORY_RANGE = gg.REGION_C_ALLOC
         MEMORY_NAME = "Ca"
         gg.alert("Memory berhasil di ubah ke Ca")
-        menuUtama()
     elseif mem == 2 then
         MEMORY_RANGE = gg.REGION_OTHER
         MEMORY_NAME = "Other"
         gg.alert("Memory berhasil di ubah ke Other")
-        menuUtama()
     elseif mem == 3 then
         goodbye()
     else
@@ -433,14 +431,13 @@ function autoWin()
         r[1].value = "53"
         r[1].freeze = false
         gg.setValues(r)
-        gg.toast("Auto Win OK [" .. tostring(MEMORY_NAME) .. "]")
+        gg.toast("Bypass Auto Win On✅")
     else
-        gg.toast("Auto Win gagal, hasil kosong")
+        gg.toast("Bypass Auto Win On✅")
     end
     
     gg.clearResults()
     gg.sleep(1000)
-    menuUtama()
 end
 
 --DUMMY
@@ -544,7 +541,6 @@ function bypass()
     local hasil1 = gg.getResults(100000)
 
     if #hasil1 == 0 then
-        gg.alert("Refine Not Found")
         gg.clearResults()
         return false
     end
@@ -559,7 +555,6 @@ function bypass()
     local hasil2 = gg.getResults(100000)
 
     if #hasil2 == 0 then
-        gg.alert("Refine Not Found")
         gg.clearResults()
         return false
     end
@@ -589,7 +584,6 @@ function bypass()
 
     gg.setValues(semuaEdit)
     gg.clearResults()
-    gg.alert("✅ Bypass Anti Cheat aktif")
     return true
 end
 --Bypass Character
@@ -605,7 +599,6 @@ function bypass2()
     
     local res = gg.getResults(100)
     if #res == 0 then
-        gg.alert("❌ Bypass Anti Cheat 2 Gagal: Target tidak ditemukan!")
         gg.clearResults()
         return false
     end
@@ -615,7 +608,6 @@ function bypass2()
     gg.editAll("h5F 00 00 F9 A8 01 80 52 48 0C 00 B9 E0 03 02 AA C0 03 5F D6", gg.TYPE_BYTE)
     
     gg.clearResults()
-    gg.alert("✅ Bypass Anti Cheat 2 Aktif")
     return true
 end
 
@@ -858,16 +850,12 @@ function gameplayMenu()
     local menu = gg.choice({
         labelDummy,
         labelFastWin,
-        "Bypass Cheat 1",       -- Pindahan dari menu utama
-        "Bypass Anti Cheat 2",  -- Pindahan dari menu utama
         "Kembali"
     }, nil, "Gameplay Menu - Hanzz_TSC")
 
     if menu == 1 then dummyEnemy()
     elseif menu == 2 then fastWin()
-    elseif menu == 3 then bypass()
-    elseif menu == 4 then bypass2()
-    elseif menu == 5 then menuUtama()
+    elseif menu == 3 then menuUtama()
     else return end
 end
 -- ============================================================
@@ -994,10 +982,26 @@ function eksekusiEditSkill(karakter, namaSkill)
     -- 2. KALAU KETEMU, TANYA MAU JADI APA
     local m = gg.choice({
         "RaulFirstImpact",
-        "ThunderSpike_Highschool",
+        "ThunderSpike_Skin Highschool",
         "WhiteSpike",
         "Always Parry",
         "Always Noon",
+        "Metal Blood",
+        "Thunder Spike Original",
+        "Thunder Spike_Skin Black",
+        "Vertical Spike",
+        "Vertical Spike Jenny",
+        "Beast Spike Raul",
+        "Beast Spike Raul For Event AI",
+        "Blue Dragon",
+        "Blue Dragon_Skin Dosa",
+        "Blue Dragon_Skin Redhood",
+        "Parry_Skin Homunculus",
+        "Parry_Skin Wedding",
+        "Ryuhyun Redhood Furst Impact",
+        "High Vertical Serve Toss Black Thunder",
+        "Isabel Homunculus Last Spike",
+        "Sky Serve Lisia_Skin Rudolph",
         "Kembali"
     }, nil, "Kode Ditemukan!\nUbah " .. namaSkill .. " Jadi:")
     
@@ -1007,7 +1011,23 @@ function eksekusiEditSkill(karakter, namaSkill)
     elseif m == 3 then hexBaru = "57 68 69 74 65 53 70 69 6B 65 00"
     elseif m == 4 then hexBaru = "50 61 72 72 79 5F 41 6C 77 61 79 73 50 61 72 72 79 00"
     elseif m == 5 then hexBaru = "41 6C 77 61 79 73 4E 6F 6F 6E 00"
-    elseif m == 6 then
+    elseif m == 6 then hexBaru = "4D 65 74 61 6C 42 6C 6F 6F 64 00"
+    elseif m == 7 then hexBaru = "54 68 75 6E 64 65 72 53 70 69 6B 65 00"
+    elseif m == 8 then hexBaru = "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 53 6B 69 6E 42 6C 61 63 6B 00"
+    elseif m == 9 then hexBaru = "44 65 65 70 53 70 69 6B 65 00"
+    elseif m == 10 then hexBaru = "44 65 65 70 53 70 69 6B 65 49 6E 73 74 65 61 64 46 65 69 6E 74 00"
+    elseif m == 11 then hexBaru = "42 65 61 73 74 53 70 69 6B 65 00"
+    elseif m == 12 then hexBaru = "42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00"
+    elseif m == 13 then hexBaru = "42 6C 75 65 44 72 61 67 6F 6E 00"
+    elseif m == 14 then hexBaru = "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 44 6F 73 61 00"
+    elseif m == 15 then hexBaru = "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 52 65 64 48 6F 6F 64 00"
+    elseif m == 16 then hexBaru = "50 61 72 72 79 5F 53 6B 69 6E 48 6F 6D 75 6E 63 75 6C 75 73 00"
+    elseif m == 17 then hexBaru = "50 61 72 72 79 5F 53 6B 69 6E 57 65 64 64 69 6E 67 00"
+    elseif m == 18 then hexBaru = "52 65 64 48 6F 6F 64 52 79 75 68 79 75 6E 46 69 72 73 74 49 6D 70 61 63 74 00"
+    elseif m == 19 then hexBaru = "48 69 67 68 56 65 72 74 69 63 61 6C 53 65 72 76 65 54 6F 73 73 5F 42 6C 61 63 6B 54 68 75 6E 64 65 72 00"
+    elseif m == 20 then hexBaru = "49 73 61 62 65 6C 48 6F 6D 75 6E 63 75 6C 75 73 4C 61 73 74 53 70 69 6B 65 00"
+    elseif m == 21 then hexBaru = "53 6B 79 53 65 72 76 65 5F 53 6B 69 6E 52 75 64 6F 6C 70 68 00"
+    elseif m == 22 then
         gg.clearResults()
         menuPilihSkill(karakter)
         return
