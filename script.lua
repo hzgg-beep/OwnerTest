@@ -406,12 +406,16 @@ function pilihMemory()
 
     if mem == 1 then
         MEMORY_RANGE = gg.REGION_C_ALLOC
+        gg.setRanges(gg.REGION_C_ALLOC)
         MEMORY_NAME = "Ca"
         gg.alert("Memory berhasil di ubah ke Ca")
+        menuUtama()
     elseif mem == 2 then
         MEMORY_RANGE = gg.REGION_OTHER
+        gg.setRanges(gg.REGION_OTHER)
         MEMORY_NAME = "Other"
         gg.alert("Memory berhasil di ubah ke Other")
+        menuUtama()
     elseif mem == 3 then
         goodbye()
     else
@@ -649,7 +653,7 @@ function fastWin()
 
     gg.clearResults()
     gg.toast("Search Fast Win...")
-    gg.searchNumber("1573.12", gg.TYPE_DOUBLE)
+    gg.searchNumber("1573,12", gg.TYPE_DOUBLE)
     local hasil1573 = gg.getResults(100000)
 
     if #hasil1573 == 0 then
@@ -668,7 +672,7 @@ function fastWin()
             listEdit[#listEdit + 1] = {
                 address = v.address,
                 flags = gg.TYPE_DOUBLE,
-                value = 1545
+                value = 1500
             }
         end
     end
@@ -850,14 +854,221 @@ function gameplayMenu()
     local menu = gg.choice({
         labelDummy,
         labelFastWin,
+        "Edit Score",
+        "Speed Hack",
         "Kembali"
     }, nil, "Gameplay Menu - Hanzz_TSC")
 
     if menu == 1 then dummyEnemy()
     elseif menu == 2 then fastWin()
-    elseif menu == 3 then menuUtama()
+    elseif menu == 3 then EditScoreMenu()
+    elseif menu == 4 then speedHack()
+    elseif menu == 5 then menuUtama()
     else return end
 end
+-- ==========================================
+-- SISTEM EDIT SCORE (PORT DARI ALSYA)
+-- ==========================================
+local savedTeamScoreAddress = nil
+local savedOpponentScoreAddress = nil
+local scoreSearchDone = { team = false, opponent = false }
+local scoreEditInfoShown = false
+local resumeScorePage = nil
+
+-- Fungsi Bantu Cari Base Address (Khusus Score)
+local function searchNewCommonBase()
+    gg.clearResults()
+    local searchRange = MEMORY_RANGE | gg.REGION_ANONYMOUS
+    gg.setRanges(searchRange)
+    gg.toast("Searching (selected range + A)")
+    gg.searchNumber("91", gg.TYPE_DOUBLE)
+
+    local count = gg.getResultCount()
+    if count == 0 then
+        gg.clearResults()
+        return nil
+    end
+
+    local results = gg.getResults(count)
+    local savedFirstSearch = {}
+    for i, r in ipairs(results) do
+        savedFirstSearch[i] = { address = r.address, flags = gg.TYPE_DOUBLE, value = r.value }
+    end
+
+    local offsetResults = {}
+    for i, r in ipairs(savedFirstSearch) do
+        offsetResults[i] = { address = r.address - 0x10, flags = gg.TYPE_DOUBLE, value = r.value }
+    end
+
+    gg.loadResults(offsetResults)
+    gg.refineNumber("115", gg.TYPE_DOUBLE)
+
+    local refinedCount = gg.getResultCount()
+    if refinedCount == 0 then
+        gg.clearResults()
+        return nil
+    end
+
+    local refinedResults = gg.getResults(refinedCount)
+    local lastResult = refinedResults[refinedCount]
+    return lastResult.address
+end
+
+local function verifyDoubleScore(address, expected)
+    if not address then return false end
+    local ok, values = pcall(function()
+        return gg.getValues({{address=address, flags=gg.TYPE_DOUBLE}})
+    end)
+    if not ok or type(values) ~= "table" or not values[1] then return false end
+    local actual = tonumber(values[1].value)
+    local want = tonumber(expected)
+    return actual ~= nil and want ~= nil and math.abs(actual - want) < 0.000001
+end
+
+function editScoreSearch(kind)
+    if scoreSearchDone[kind] then
+        gg.alert("📄 Information\n─────────────────\nKamu udah melakukan pencarian.\nGabisa melakukan pencarian lagi!\n─────────────────")
+        return false
+    end
+
+    gg.clearResults()
+    gg.toast("Searching score...")
+
+    local baseAddress = searchNewCommonBase()
+    if baseAddress == nil then
+        gg.alert("❌ Gagal: Base address skor tidak ditemukan!")
+        return false
+    end
+
+    local offset = (kind == "team") and -0x250 or -0x260
+    local targetAddress = baseAddress + offset
+
+    if kind == "team" then
+        savedTeamScoreAddress = targetAddress
+    else
+        savedOpponentScoreAddress = targetAddress
+    end
+
+    scoreSearchDone[kind] = true
+    gg.clearResults()
+    gg.alert("📄 success/done ✅\n─────────────────\nSearch results found\n─────────────────")
+    return true
+end
+
+function editScoreSet(kind, value)
+    local address = (kind == "team") and savedTeamScoreAddress or savedOpponentScoreAddress
+    if address == nil then
+        gg.alert("❌ Search skornya dulu!")
+        return false
+    end
+
+    local n = tonumber(value)
+    if n == nil then
+        gg.toast("❌ Skor tidak valid.")
+        return false
+    end
+
+    local ok = pcall(function() gg.setValues({{address = address, flags = gg.TYPE_DOUBLE, value = n}}) end)
+    gg.clearResults()
+    
+    if not ok or not verifyDoubleScore(address, n) then
+        gg.alert("❌ Gagal mengubah skor!")
+        return false
+    end
+    
+    gg.toast("✅ Skor berhasil diubah ke " .. tostring(n))
+    resumeScorePage = kind
+    return true
+end
+
+function menuScoreTeam()
+    while true do
+        local c = gg.choice({
+            "    ➣      Search for scores",
+            "    ➣      Change to 4",
+            "    ➣      Change to 7",
+            "    ➣      Change to 11",
+            "    ➣      Change to 14",
+            "    ➣      Custom edit",
+            "    ➣      Return"
+        }, nil, "EDIT SCORE TEAM")
+
+        if c == nil then return "cancel_team" end
+        if c == 7 then return "return" end
+        if c == 1 then editScoreSearch("team")
+        elseif c == 2 then if editScoreSet("team", 4) then return "score_changed" end
+        elseif c == 3 then if editScoreSet("team", 7) then return "score_changed" end
+        elseif c == 4 then if editScoreSet("team", 11) then return "score_changed" end
+        elseif c == 5 then if editScoreSet("team", 14) then return "score_changed" end
+        elseif c == 6 then
+            local p = gg.prompt({"Custom Score Team"}, {1}, {"number"})
+            if p and editScoreSet("team", p[1]) then return "score_changed" end
+        end
+    end
+end
+
+function menuScoreOpponent()
+    while true do
+        local c = gg.choice({
+            "    ➣      Search for scores",
+            "    ➣      Custom edit",
+            "    ➣      Return"
+        }, nil, "EDIT SCORE LAWAN / AGAINST")
+
+        if c == nil then return "cancel_opponent" end
+        if c == 3 then return "return" end
+        if c == 1 then editScoreSearch("opponent")
+        elseif c == 2 then
+            local p = gg.prompt({"Custom Score Lawan / Against"}, {1}, {"number"})
+            if p and editScoreSet("opponent", p[1]) then return "score_changed" end
+        end
+    end
+end
+
+function EditScoreMenu()
+    if not scoreEditInfoShown then
+        gg.alert("📄 Perhatian!!\n─────────────────\nEdit score digunakan pada saat tim kita/musuh sudah mendapatkan skor minimal 1, sebelum skor 1 langsung pencet TIME OUT, setelah itu langsung search skornya, setelah ketemu tinggal ubah jadi yang kamu mau.\n─────────────────")
+        scoreEditInfoShown = true
+    end
+
+    while true do
+        local c = gg.choice({
+            "    ➣      Skor Team",
+            "    ➣      Skor Lawan / Against",
+            "    ➣      Return"
+        }, nil, "EDIT SCORE")
+
+        if c == nil then return end
+        if c == 3 then
+            resumeScorePage = nil
+            return
+        end
+        if c == 1 then
+            local result = menuScoreTeam()
+            if result == "return" then
+                -- Kembali ke halaman Edit Score.
+            elseif result == "score_changed" then
+                resumeScorePage = nil
+                return
+            elseif result == "cancel_team" then
+                resumeScorePage = "team"
+                return
+            end
+        elseif c == 2 then
+            local result = menuScoreOpponent()
+            if result == "return" then
+                -- Kembali ke halaman Edit Score.
+            elseif result == "score_changed" then
+                resumeScorePage = nil
+                return
+            elseif result == "cancel_opponent" then
+                resumeScorePage = "opponent"
+                return
+            end
+        end
+    end
+end
+
 -- ============================================================
 -- Gamemaker Tools
 -- ============================================================
@@ -1002,6 +1213,17 @@ function eksekusiEditSkill(karakter, namaSkill)
         "High Vertical Serve Toss Black Thunder",
         "Isabel Homunculus Last Spike",
         "Sky Serve Lisia_Skin Rudolph",
+        "Chapter 12 Beast Spike For Event AI",
+        "Chapter 12 Beast Spike For Event AI",
+        "Calm Before The Storm",
+        "Coward Jacob Horror",
+        "Default",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
         "Kembali"
     }, nil, "Kode Ditemukan!\nUbah " .. namaSkill .. " Jadi:")
     
@@ -1027,7 +1249,18 @@ function eksekusiEditSkill(karakter, namaSkill)
     elseif m == 19 then hexBaru = "48 69 67 68 56 65 72 74 69 63 61 6C 53 65 72 76 65 54 6F 73 73 5F 42 6C 61 63 6B 54 68 75 6E 64 65 72 00"
     elseif m == 20 then hexBaru = "49 73 61 62 65 6C 48 6F 6D 75 6E 63 75 6C 75 73 4C 61 73 74 53 70 69 6B 65 00"
     elseif m == 21 then hexBaru = "53 6B 79 53 65 72 76 65 5F 53 6B 69 6E 52 75 64 6F 6C 70 68 00"
-    elseif m == 22 then
+    elseif m == 22 then hexBaru = "43 68 61 70 74 65 72 31 32 42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00"
+    elseif m == 23 then hexBaru = "43 68 61 70 74 65 72 31 31 42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00"
+    elseif m == 24 then hexBaru = "43 61 6C 6D 42 65 66 6F 72 65 54 68 65 53 74 6F 72 6D 00"
+    elseif m == 25 then hexBaru = "43 6F 77 61 72 64 4A 61 63 6F 62 48 6F 72 72 6F 72 00"
+    elseif m == 26 then hexBaru = "44 65 66 61 75 6C 74 00"
+    elseif m == 27 then hexBaru = ""
+    elseif m == 28 then hexBaru = ""
+    elseif m == 29 then hexBaru = ""
+    elseif m == 30 then hexBaru = ""
+    elseif m == 31 then hexBaru = ""
+    elseif m == 32 then hexBaru = ""
+    elseif m == 33 then
         gg.clearResults()
         menuPilihSkill(karakter)
         return
@@ -1072,6 +1305,77 @@ function eksekusiEditSkill(karakter, namaSkill)
     gg.sleep(100)
     menuPilihSkill(karakter)
 end
+-- SPEED HACK
+function speedHack()
+    gg.setVisible(false)
+    gg.toast("Mencari Speed Hack...")
+    gg.clearResults()
+    
+    -- Pastikan pake memory range pilihan user
+    if MEMORY_RANGE ~= nil then
+        gg.setRanges(MEMORY_RANGE)
+    else
+        gg.setRanges(gg.REGION_C_ALLOC)
+    end
+
+    -- 1. Cari 116 (Double)
+    gg.searchNumber("116", gg.TYPE_DOUBLE)
+    local res1 = gg.getResults(100000)
+    
+    if #res1 == 0 then
+        gg.alert("❌ Gagal: Nilai 116 tidak ditemukan!")
+        return
+    end
+
+    -- 2. Offset +10 (0x10)
+    local offset1 = {}
+    for _, v in ipairs(res1) do 
+        offset1[#offset1+1] = {address = v.address + 0x10, flags = gg.TYPE_DOUBLE} 
+    end
+    gg.loadResults(offset1)
+    
+    -- 3. Refine 1
+    gg.refineNumber("1", gg.TYPE_DOUBLE)
+    local res2 = gg.getResults(100000)
+    
+    if #res2 == 0 then
+        gg.alert("❌ Gagal: Refine nilai 1 tidak ditemukan!")
+        return
+    end
+
+    -- 4. Offset +30 (0x30)
+    local offset2 = {}
+    for _, v in ipairs(res2) do 
+        offset2[#offset2+1] = {address = v.address + 0x30, flags = gg.TYPE_DOUBLE} 
+    end
+    gg.loadResults(offset2)
+    
+    -- 5. Cari 60
+    gg.searchNumber("60", gg.TYPE_DOUBLE)
+    local resFinal = gg.getResults(100000)
+    
+    if #resFinal == 0 then
+        gg.alert("❌ Gagal: Nilai 60 tidak ditemukan!")
+        return
+    end
+
+    -- 6. Edit jadi 20
+    local editList = {}
+    for _, v in ipairs(resFinal) do
+        if v.address and v.address ~= 0 then
+            editList[#editList + 1] = {address = v.address, flags = gg.TYPE_DOUBLE, value = 20}
+        end
+    end
+    
+    local ok = pcall(function() gg.setValues(editList) end)
+    gg.clearResults()
+    
+    if ok then
+        gg.alert("✅ Speed Hack Berhasil Diaktifkan!")
+    else
+        gg.alert("❌ Gagal mengedit nilai Speed Hack!")
+    end
+end
 
 -- ==========================================
 -- SISTEM EDIT CHARACTER
@@ -1115,10 +1419,9 @@ function menuEditCharacter()
     gg.clearResults()
 
     -- 3. Scan karakter pake offset -150 berulang kali
-    local foundChars = {}
     local scanList = {}
     for i = 0, charCount - 1 do
-        local addr = finalBase - (i * 0x150) -- 0x150 = 336 decimal. Offset -150 hex.
+        local addr = finalBase - (i * 0x150)
         scanList[#scanList + 1] = {address = addr, flags = gg.TYPE_DOUBLE}
     end
 
@@ -1127,15 +1430,12 @@ function menuEditCharacter()
     
     local charMenu = {}
     local charAddrMap = {}
-    local charIdMap = {}
 
     for i, v in ipairs(values) do
         local id = v.value
         local name = characterList[id] or ("Unknown ID: " .. tostring(id))
-        
         charMenu[#charMenu + 1] = name
         charAddrMap[#charAddrMap + 1] = v.address
-        charIdMap[#charIdMap + 1] = id
     end
 
     if #charMenu == 0 then
@@ -1143,10 +1443,8 @@ function menuEditCharacter()
         return menuUtama()
     end
 
-    charMenu[#charMenu + 1] = "Batal"
-
-    -- 4. Multi Choice buat milih karakter
-    local choices = gg.multiChoice(charMenu, nil, "Pilih Karakter yang mau diedit")
+    -- 4. Multi Choice buat milih karakter ASAL
+    local choices = gg.multiChoice(charMenu, nil, "Pilih Karakter ASAL yang mau diedit")
     if not choices then return menuUtama() end
 
     local selectedIndices = {}
@@ -1161,49 +1459,100 @@ function menuEditCharacter()
         return menuEditCharacter()
     end
 
-    -- 5. Pilih Mau Edit Apa
-    local editMode = gg.choice({"Edit Stats Saja", "Edit Stats + Karakter"}, nil, "Pilih Mode Edit")
-    if not editMode then return menuEditCharacter() end
+    -- 5. Pilih Posisi Target (WS / MB / SE)
+    local posMenu = gg.choice({"Wing Spiker (WS)", "Middle Blocker (MB)", "Setter (SE)", "Kembali"}, nil, "Pilih Posisi Karakter Tujuan")
+    if not posMenu or posMenu == 4 then return menuEditCharacter() end
 
-    local newAttack = nil
-    local newDefense = nil
-    local newSpeed = nil
-    local newJump = nil
+    local charListMenu = {}
+    local charIdList = {}
 
-    -- Input Stats
+    if posMenu == 1 then
+        charListMenu = {
+            "Nishikawa", "Nishikawa Old", "Nishikawa?", "Raul Luca", "Raul Luca Dark Mode", "Siwoo Storm",
+            "Siwoo Highlight", "Isabel", "Lucas", "Ryuhyun", "Sara WS", "Leon", "Jenny", "Hongsi",
+            "Oasis", "Yoonseok", "Minjun", "Jaehyeon", "Youngsup", "Dave", "Seo Yuna"
+        }
+        charIdList = {
+            "98", "99", "164", "324", "352", "296",
+            "325", "159", "284", "225", "351", "158", "251", "212",
+            "50", "39", "65", "30", "10", "228", "388"
+        }
+    elseif posMenu == 2 then
+        charListMenu = {
+            "Heesung", "Roberto", "Atis", "Yamadera", "Sanghyeon", "Hanra", "Mike",
+            "Clyde", "Hari", "Crow", "Claire", "Yuri", "Han Gitae"
+        }
+        charIdList = {
+            "19", "163", "44", "96", "160", "218", "229",
+            "232", "282", "283", "322", "350", "387"
+        }
+    elseif posMenu == 3 then
+        charListMenu = {
+            "Seolhwa", "NN", "Viola", "Sohee", "Ahyeon", "Lisia", "Muyoung",
+            "Sodam", "Sara SE", "Tania", "Ellio", "Zero", "Sif", "Iris", "Jihoon"
+        }
+        charIdList = {
+            "200", "161", "157", "95", "31", "40", "221",
+            "215", "230", "231", "252", "286", "323", "349", "375"
+        }
+    end
+
+    local pickChar = gg.choice(charListMenu, nil, "Ubah Karakter Menjadi:")
+    if not pickChar then return menuEditCharacter() end
+    local targetCharId = charIdList[pickChar]
+
+-- 6. Input Skin (Setelah milih karakter)
+local skinInfo = 
+    "Daftar ID Skin:\n" ..
+    "1: Nishikawa+High School\n" ..
+    "4: Nishikawa+Black Thunder\n" ..
+    "7: Ryuhyeon+Chief Disciple\n" ..
+    "19: Ryuhyeon+Red Hood\n" ..
+    "22: Lucas+Summer Training\n" ..
+    "8: Sara SE+Water Splash\n" ..
+    "16: Ellio+Star of the Encore\n" ..
+    "5: Ahyeon+Style\n" ..
+    "12: Sohee+Vampire\n" ..
+    "11: NN+Surfer\n" ..
+    "13: Lisia+Rudolph\n" ..
+    "21: Claire+God Father\n" ..
+    "23: Hanra+Summer Training\n" ..
+    "18: Hari+Midnight\n" ..
+    "3: Jaehyeon+Training\n" ..
+    "17: Jenny+Shooting Star\n" ..
+    "9: Jenny+Straw Hat\n" ..
+    "2: Isabel+Wedding Dress\n" ..
+    "10: Dave+Driver\n" ..
+    "14: Hongshi+Maid\n" ..
+    "15: Zero+Street Artist\n" ..
+    "20: Sif+Bounty Hunter\n" ..
+    "24: Viola+Summer Training\n" ..
+    "25: Tania+Homunculus\n" ..
+    "26: Isabel+Homunculus\n" ..
+    "(-1: Default)"
+
+local pSkin = gg.prompt({"Masukkan ID Skin (Kosongkan untuk skip):\n\n" .. skinInfo}, {"-1"}, {"number"})
+local newSkin = nil
+if pSkin and pSkin[1] and tostring(pSkin[1]):match("^%s*$") == nil then
+    newSkin = tonumber(pSkin[1])
+end
+
+    -- 7. Input Stats
     local pStats = gg.prompt(
-        {"Masukkan nilai Attack:", "Masukkan nilai Defense:", "Masukkan nilai Speed:", "Masukkan nilai Jump:", "Masukan nilai Skin:", "Masukkan nilai Ascencion:"},
-        {"200", "300", "50", "200", "-1", "5"},
-        {"number", "number", "number", "number"}
+        {"Masukkan nilai Attack:", "Masukkan nilai Defense:", "Masukkan nilai Speed:", "Masukkan nilai Jump:", "Masukkan nilai Ascencion:"},
+        {"200", "300", "50", "200", "5"},
+        {"number", "number", "number", "number", "number"}
     )
+    local newAttack, newDefense, newSpeed, newJump, newAsc = nil, nil, nil, nil, nil
     if pStats then
         newAttack = tonumber(pStats[1])
         newDefense = tonumber(pStats[2])
         newSpeed = tonumber(pStats[3])
         newJump = tonumber(pStats[4])
-        newSkin = tonumber(pStats[5])
-        newAsc = tonumber(pStats[6])
+        newAsc = tonumber(pStats[5])
     end
 
-    local targetCharId = nil
-    if editMode == 2 then
-        -- Bikin menu pilihan karakter dari Database
-        local charListMenu = {}
-        local charIdList = {}
-        for id, name in pairs(characterList) do
-            charListMenu[#charListMenu + 1] = name
-            charIdList[#charIdList + 1] = id
-        end
-        
-        local pickChar = gg.choice(charListMenu, nil, "Ubah Karakter Menjadi:")
-        if pickChar then
-            targetCharId = charIdList[pickChar]
-        else
-            return menuEditCharacter()
-        end
-    end
-
-    -- 6. EKSEKUSI EDIT
+    -- 8. EKSEKUSI EDIT
     local editList = {}
     for _, idx in ipairs(selectedIndices) do
         local addr = charAddrMap[idx]
@@ -1213,14 +1562,18 @@ function menuEditCharacter()
             editList[#editList + 1] = {address = addr, flags = gg.TYPE_DOUBLE, value = targetCharId}
         end
         
-        -- Edit Stats (sesuai offset yang lu kasih)
+        -- Edit Skin (Jika diisi)
+        if newSkin ~= nil then
+            editList[#editList + 1] = {address = addr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin}
+        end
+
+        -- Edit Stats
         if newAttack then
-            editList[#editList + 1] = {address = addr - 0x20, flags = gg.TYPE_DOUBLE, value = newAttack} -- Attack +30
-            editList[#editList + 1] = {address = addr + 0x30, flags = gg.TYPE_DOUBLE, value = newDefense} -- Defense +10
-            editList[#editList + 1] = {address = addr - 0xC0, flags = gg.TYPE_DOUBLE, value = newSpeed} -- Speed -E0
-            editList[#editList + 1] = {address = addr - 0x10, flags = gg.TYPE_DOUBLE, value = newJump} -- Jump -F0
-            editList[#editList + 1] = {address = addr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin} -- Skin -E0
-            editList[#editList + 1] = {address = addr - 0x70, flags = gg.TYPE_DOUBLE, value = newAsc} -- Ascencion
+            editList[#editList + 1] = {address = addr - 0x20, flags = gg.TYPE_DOUBLE, value = newAttack} 
+            editList[#editList + 1] = {address = addr + 0x30, flags = gg.TYPE_DOUBLE, value = newDefense} 
+            editList[#editList + 1] = {address = addr - 0xC0, flags = gg.TYPE_DOUBLE, value = newSpeed} 
+            editList[#editList + 1] = {address = addr - 0x10, flags = gg.TYPE_DOUBLE, value = newJump} 
+            editList[#editList + 1] = {address = addr - 0x70, flags = gg.TYPE_DOUBLE, value = newAsc} 
         end
     end
 
@@ -1236,12 +1589,368 @@ function menuEditCharacter()
     menuUtama()
 end
 
+-- ==========================================
+-- SISTEM MASTERY BARU
+-- ==========================================
+function prosesMastery(namaMasteryAwal)
+    gg.setVisible(false)
+    
+    -- 1. Pilih Posisi Karakter
+    local posMenu = gg.choice({"Wing Spiker (WS)", "Middle Blocker (MB)", "Setter (SE)", "Kembali"}, nil, "Pilih Posisi Karakter")
+    if not posMenu or posMenu == 4 then return masteryMenu() end
+
+    local charListMenu = {}
+    local charIdList = {}
+
+    if posMenu == 1 then
+        charListMenu = {
+            "Nishikawa", "Nishikawa Old", "Nishikawa?", "Raul Luca", "Raul Luca Dark Mode", "Siwoo Storm",
+            "Siwoo Highlight", "Isabel", "Lucas", "Ryuhyun", "Sara WS", "Leon", "Jenny", "Hongsi",
+            "Oasis", "Yoonseok", "Minjun", "Jaehyeon", "Youngsup", "Dave", "Seo Yuna"
+        }
+        charIdList = {
+            "98", "99", "164", "324", "352", "296",
+            "325", "159", "284", "225", "351", "158", "251", "212",
+            "50", "39", "65", "30", "10", "228", "388"
+        }
+    elseif posMenu == 2 then
+        charListMenu = {
+            "Heesung", "Roberto", "Atis", "Yamadera", "Sanghyeon", "Hanra", "Mike",
+            "Clyde", "Hari", "Crow", "Claire", "Yuri", "Han Gitae"
+        }
+        charIdList = {
+            "19", "163", "44", "96", "160", "218", "229",
+            "232", "282", "283", "322", "350", "387"
+        }
+    elseif posMenu == 3 then
+        charListMenu = {
+            "Seolhwa", "NN", "Viola", "Sohee", "Ahyeon", "Lisia", "Muyoung",
+            "Sodam", "Sara SE", "Tania", "Ellio", "Zero", "Sif", "Iris", "Jihoon"
+        }
+        charIdList = {
+            "200", "161", "157", "95", "31", "40", "221",
+            "215", "230", "231", "252", "286", "323", "349", "375"
+        }
+    end
+
+    local pickChar = gg.choice(charListMenu, nil, "Pilih Karakter untuk Mastery:")
+    if not pickChar then return masteryMenu() end
+    local targetCharId = charIdList[pickChar]
+    local targetCharName = charListMenu[pickChar]
+
+    gg.clearResults()
+    gg.setRanges(MEMORY_RANGE)
+    gg.toast("Mencari ID " .. targetCharName .. "...")
+
+    -- 2. Cari ID Karakter
+    gg.searchNumber(targetCharId, gg.TYPE_DOUBLE)
+    local resChar = gg.getResults(100000)
+    if #resChar == 0 then
+        gg.alert("❌ Gagal: ID " .. targetCharName .. " tidak ditemukan!")
+        return masteryMenu()
+    end
+
+    -- 3. Offset +0x20 -> Cari ID Mastery
+    local off1 = {}
+    for _, v in ipairs(resChar) do off1[#off1+1] = {address = v.address + 0x20, flags = gg.TYPE_DOUBLE} end
+    gg.loadResults(off1)
+    
+    gg.searchNumber(namaMasteryAwal, gg.TYPE_DOUBLE)
+    local resMastery = gg.getResults(100000)
+    if #resMastery == 0 then
+        gg.alert("❌ Gagal: Mastery awal tidak ditemukan di offset +20!")
+        return masteryMenu()
+    end
+
+    -- 4. Offset +0x20 -> Cari ID Mastery Lagi
+    local off2 = {}
+    for _, v in ipairs(resMastery) do off2[#off2+1] = {address = v.address + 0x20, flags = gg.TYPE_DOUBLE} end
+    gg.loadResults(off2)
+
+    gg.searchNumber(namaMasteryAwal, gg.TYPE_DOUBLE)
+    local resFinal = gg.getResults(100000)
+    if #resFinal == 0 then
+        gg.alert("❌ Gagal: Mastery tidak ditemukan di offset +20 kedua!")
+        return masteryMenu()
+    end
+    
+    gg.clearResults()
+
+    -- 5. Pilih Mastery Baru
+    local mMastery = gg.choice({"Veteran (1)", "Elite (2)", "Legend (3)", "Champion (4)", "Kembali"}, nil, "Pilih Mastery Baru:")
+    if not mMastery or mMastery == 5 then return masteryMenu() end
+
+    local newMasteryVal = mMastery -- Veteran = 1, Elite = 2, dst.
+
+    -- 6. Eksekusi Edit
+    local editList = {}
+    for _, v in ipairs(resFinal) do
+        if v.address and v.address ~= 0 then
+            editList[#editList + 1] = {address = v.address, flags = gg.TYPE_DOUBLE, value = newMasteryVal}
+        end
+    end
+
+    local ok = pcall(function() gg.setValues(editList) end)
+    gg.clearResults()
+
+    if ok then
+        gg.alert("✅ Mastery " .. targetCharName .. " Berhasil Diubah!")
+    else
+        gg.alert("❌ Gagal mengedit Mastery!")
+    end
+
+    masteryMenu()
+end
+
+--Mastery Menu
+function masteryMenu()
+    gg.setVisible(false)
+    local menuTitle = "Menu Mastery [" .. tostring(USER_NAME) .. "] - " .. tostring(MEMORY_NAME)
+
+    local menu = gg.choice({
+    	"Veteran",
+        "Elite",
+        "Legend",
+        "Return",
+    }, nil, menuTitle)
+    
+    if menu == 1 then
+        prosesMastery("1") -- Cari yang Veteran
+    elseif menu == 2 then
+        prosesMastery("2") -- Cari yang Elite
+    elseif menu == 3 then
+        prosesMastery("3") -- Cari yang Legend
+    elseif menu == 4 then
+        menuUtama()
+    end
+end
+
+-- ==========================================
+-- QUICK SCAN CHARACTER (METODE -1 OFFSET)
+-- ==========================================
+function quickScanChar(targetPosName)
+    gg.setVisible(false)
+    
+    -- Tentukan ID asal
+    local originID = "1"
+    if targetPosName == "Ohjun" then originID = "3"
+    elseif targetPosName == "Jaeho" then originID = "2" end
+
+    gg.clearResults()
+    gg.setRanges(MEMORY_RANGE)
+    gg.toast("Mencari ID " .. targetPosName .. "...")
+
+    -- 1. Cari nilai -1 pertama
+    gg.searchNumber("-1", gg.TYPE_DOUBLE)
+    local res1 = gg.getResults(100000)
+    if #res1 == 0 then
+        gg.alert("❌ Gagal: Nilai -1 tidak ditemukan!")
+        return charMenu()
+    end
+
+    -- 2. Offset -0x10 dari hasil pertama
+    local off1 = {}
+    for _, v in ipairs(res1) do off1[#off1+1] = {address = v.address + 0x50, flags = gg.TYPE_DOUBLE} end
+    gg.loadResults(off1)
+
+    -- 3. Refine -1
+    gg.refineNumber("-1", gg.TYPE_DOUBLE)
+    local res2 = gg.getResults(100000)
+    if #res2 == 0 then
+        gg.alert("❌ Gagal: Refine -1 pertama gagal!")
+        return charMenu()
+    end
+
+    -- 4. Offset -0x10 lagi
+    local off2 = {}
+    for _, v in ipairs(res2) do off2[#off2+1] = {address = v.address - 0x10, flags = gg.TYPE_DOUBLE} end
+    gg.loadResults(off2)
+
+    -- 5. Refine -1 lagi
+    gg.refineNumber("-1", gg.TYPE_DOUBLE)
+    local res3 = gg.getResults(100000)
+    if #res3 == 0 then
+        gg.alert("❌ Gagal: Refine -1 kedua gagal!")
+        return charMenu()
+    end
+
+    -- 6. Offset -0x10 lagi
+    local off3 = {}
+    for _, v in ipairs(res3) do off3[#off3+1] = {address = v.address - 0x10, flags = gg.TYPE_DOUBLE} end
+    gg.loadResults(off3)
+
+    -- 7. Cari ID Karakter dari titik ini
+    gg.searchNumber(originID, gg.TYPE_DOUBLE)
+    local resFinal = gg.getResults(100000)
+    
+    if #resFinal == 0 then
+        gg.alert("❌ Gagal: ID " .. targetPosName .. " (" .. originID .. ") tidak ditemukan dari pola -1!")
+        gg.clearResults()
+        return charMenu()
+    end
+
+    -- Ambil alamat pertama yang ketemu
+    local targetAddr = resFinal[1].address
+    gg.clearResults()
+
+    -- ==========================================
+    -- MASUK KE MENU EDIT
+    -- ==========================================
+    local posMenu = gg.choice({"Wing Spiker (WS)", "Middle Blocker (MB)", "Setter (SE)", "Kembali"}, nil, "Pilih Posisi Karakter Tujuan")
+    if not posMenu or posMenu == 4 then return charMenu() end
+
+    local charListMenu = {}
+    local charIdList = {}
+
+    if posMenu == 1 then
+        charListMenu = {
+            "Nishikawa", "Nishikawa Old", "Nishikawa?", "Raul Luca", "Raul Luca Dark Mode", "Siwoo Storm",
+            "Siwoo Highlight", "Isabel", "Lucas", "Ryuhyun", "Sara WS", "Leon", "Jenny", "Hongsi",
+            "Oasis", "Yoonseok", "Minjun", "Jaehyeon", "Youngsup", "Dave", "Seo Yuna"
+        }
+        charIdList = {
+            "98", "99", "164", "324", "352", "296",
+            "325", "159", "284", "225", "351", "158", "251", "212",
+            "50", "39", "65", "30", "10", "228", "388"
+        }
+    elseif posMenu == 2 then
+        charListMenu = {
+            "Heesung", "Roberto", "Atis", "Yamadera", "Sanghyeon", "Hanra", "Mike",
+            "Clyde", "Hari", "Crow", "Claire", "Yuri", "Han Gitae"
+        }
+        charIdList = {
+            "19", "163", "44", "96", "160", "218", "229",
+            "232", "282", "283", "322", "350", "387"
+        }
+    elseif posMenu == 3 then
+        charListMenu = {
+            "Seolhwa", "NN", "Viola", "Sohee", "Ahyeon", "Lisia", "Muyoung",
+            "Sodam", "Sara SE", "Tania", "Ellio", "Zero", "Sif", "Iris", "Jihoon"
+        }
+        charIdList = {
+            "200", "161", "157", "95", "31", "40", "221",
+            "215", "230", "231", "252", "286", "323", "349", "375"
+        }
+    end
+
+    local pickChar = gg.choice(charListMenu, nil, "Ubah Karakter Menjadi:")
+    if not pickChar then return charMenu() end
+    local targetCharId = charIdList[pickChar]
+
+    -- Input Skin
+local skinInfo = 
+    "Daftar ID Skin:\n" ..
+    "1: Nishikawa+High School\n" ..
+    "4: Nishikawa+Black Thunder\n" ..
+    "7: Ryuhyeon+Chief Disciple\n" ..
+    "19: Ryuhyeon+Red Hood\n" ..
+    "22: Lucas+Summer Training\n" ..
+    "8: Sara SE+Water Splash\n" ..
+    "16: Ellio+Star of the Encore\n" ..
+    "5: Ahyeon+Style\n" ..
+    "12: Sohee+Vampire\n" ..
+    "11: NN+Surfer\n" ..
+    "13: Lisia+Rudolph\n" ..
+    "21: Claire+God Father\n" ..
+    "23: Hanra+Summer Training\n" ..
+    "18: Hari+Midnight\n" ..
+    "3: Jaehyeon+Training\n" ..
+    "17: Jenny+Shooting Star\n" ..
+    "9: Jenny+Straw Hat\n" ..
+    "2: Isabel+Wedding Dress\n" ..
+    "10: Dave+Driver\n" ..
+    "14: Hongshi+Maid\n" ..
+    "15: Zero+Street Artist\n" ..
+    "20: Sif+Bounty Hunter\n" ..
+    "24: Viola+Summer Training\n" ..
+    "25: Tania+Homunculus\n" ..
+    "26: Isabel+Homunculus\n" ..
+    "(-1: Default)"
+
+    local pSkin = gg.prompt({"Masukkan ID Skin (Kosongkan untuk skip):\n\n" .. skinInfo}, {"-1"}, {"number"})
+    local newSkin = nil
+    if pSkin and pSkin[1] and tostring(pSkin[1]):match("^%s*$") == nil then
+        newSkin = tonumber(pSkin[1])
+    end
+
+    -- Input Stats
+    local pStats = gg.prompt(
+        {"Masukkan nilai Attack:", "Masukkan nilai Defense:", "Masukkan nilai Speed:", "Masukkan nilai Jump:", "Masukkan nilai Ascencion:"},
+        {"200", "300", "50", "200", "5"},
+        {"number", "number", "number", "number", "number"}
+    )
+    local newAttack, newDefense, newSpeed, newJump, newAsc = nil, nil, nil, nil, nil
+    if pStats then
+        newAttack = tonumber(pStats[1])
+        newDefense = tonumber(pStats[2])
+        newSpeed = tonumber(pStats[3])
+        newJump = tonumber(pStats[4])
+        newAsc = tonumber(pStats[5])
+    end
+
+    -- Eksekusi Edit
+    local editList = {}
+    
+    if targetCharId then
+        editList[#editList + 1] = {address = targetAddr, flags = gg.TYPE_DOUBLE, value = targetCharId}
+    end
+    if newSkin ~= nil then
+        editList[#editList + 1] = {address = targetAddr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin}
+    end
+    if newAttack then
+        editList[#editList + 1] = {address = targetAddr - 0x20, flags = gg.TYPE_DOUBLE, value = newAttack} 
+        editList[#editList + 1] = {address = targetAddr + 0x30, flags = gg.TYPE_DOUBLE, value = newDefense} 
+        editList[#editList + 1] = {address = targetAddr - 0xC0, flags = gg.TYPE_DOUBLE, value = newSpeed} 
+        editList[#editList + 1] = {address = targetAddr - 0x10, flags = gg.TYPE_DOUBLE, value = newJump} 
+        editList[#editList + 1] = {address = targetAddr - 0x70, flags = gg.TYPE_DOUBLE, value = newAsc} 
+    end
+
+    local ok = pcall(function() gg.setValues(editList) end)
+    gg.clearResults()
+
+    if ok then
+        gg.alert("✅ Berhasil Mengubah Karakter " .. targetPosName .. "!")
+    else
+        gg.alert("❌ Gagal mengedit!")
+    end
+
+    charMenu()
+end
+
+--Pilihan char menu
+function charMenu()
+    gg.setVisible(false)
+    local menuTitle = "CHARACTER MENU [" .. tostring(USER_NAME) .. "] - " .. tostring(MEMORY_NAME)
+    
+    local menu = gg.choice ({
+    	"Siwoo",
+        "Ohjun",
+        "Jaejo",
+        "Scan Character",
+        "Kembali"
+    }, nil, menuTitle)
+    
+    if menu == 1 then
+        quickScanChar("Siwoo")
+    elseif menu == 2 then
+        quickScanChar("Ohjun")
+    elseif menu == 3 then
+        quickScanChar("Jaeho")
+    elseif menu == 4 then
+        menuEditCharacter()
+    elseif menu == 5 then
+        menuUtama()
+    end
+end
+
+--MENU UTAMA
 function menuUtama()
     gg.setVisible(false)
     local menuTitle = "Hanzz_TSC [" .. tostring(USER_NAME) .. "] - " .. tostring(MEMORY_NAME)
 
     local menu = gg.choice({
         "Character Menu",
+        "Mastery Menu",
         "Config Skill All Character",
         "Gameplay Menu",
         "Show FPS Mode",
@@ -1251,18 +1960,20 @@ function menuUtama()
     }, nil, menuTitle)
 
     if menu == 1 then
-        menuEditCharacter()
+        charMenu()
     elseif menu == 2 then
-        menuPilihKarakter()
+        masteryMenu()
     elseif menu == 3 then
-        gameplayMenu()
+        menuPilihKarakter()
     elseif menu == 4 then
-        showFpsMode()
+        gameplayMenu()
     elseif menu == 5 then
-        menuUID()
+        showFpsMode()
     elseif menu == 6 then
-        pilihMemory()
+        menuUID()
     elseif menu == 7 then
+        pilihMemory()
+    elseif menu == 8 then
         goodbye()
     end
 end
