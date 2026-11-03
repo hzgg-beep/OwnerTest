@@ -169,10 +169,89 @@ local skillDatabase = {
             offsetStart = 0
         }
     },
-    ["Nishikawa"] = {
+    ["Nishikawa Original"] = {
+        ["ThunderSpike_Original"] = {
+            searchHex = "h54 68 75 6E 64 65 72 53 70 69 6B 65 00 00 00 00 1F",
+            refineHex = "h54 68 75",
+            offsetStart = 0
+        },
+        ["Blink Ball Original"] = {
+        	searchHex = "h42 6C 69 6E 6B 42 61 6C 6C 5F 54 68 75 6E 64 65 72 00 00 00 16",
+            refineHex = "h42 6C 69",
+            offsetStart = 0
+        },
+        ["High Third Receive"] = {
+        	searchHex = "h67 6D 6C 5F 53 63 72 69 70 74 5F 53 6B 69 6C 6C 46 65 61 74 75 72 65 5F 48 69 67 68 54 68 69 72 64 52 65 63 65 69 76 65 00 00 00 00 2F 00 00 00",
+            refineHex = "h48 69 67 68",
+            offsetStart = 0
+        },
+        ["Double Spike"] = {
+        	searchHex = "h67 6D 6C 5F 53 63 72 69 70 74 5F 53 6B 69 6C 6C 46 65 61 74 75 72 65 5F 44 6F 75 62 6C 65 53 70 69 6B 65 00 17 00 00 00",
+            refineHex = "h44 6F 75",
+            offsetStart = 0
+        },
+        ["Charge"] = {
+        	searchHex = "h67 6D 6C 5F 53 63 72 69 70 74 5F 53 6B 69 6C 6C 46 65 61 74 75 72 65 5F 43 68 61 72 67 65 00 00 28",
+            refineHex = "h43 68",
+            offsetStart = 0
+        },
+        ["Top Spin Feint"] = {
+        	searchHex = "h67 6D 6C 5F 53 63 72 69 70 74 5F 53 6B 69 6C 6C 46 65 61 74 75 72 65 5F 54 6F 70 53 70 69 6E 46 65 69 6E 74 00 00 00 00 22",
+            refineHex = "h54 6F 70",
+            offsetStart = 0
+        },
+        ["Thunder Spark"] = {
+        	searchHex = "h67 6D 6C 5F 53 63 72 69 70 74 5F 53 6B 69 6C 6C 46 65 61 74 75 72 65 5F 54 68 75 6E 64 65 72 53 70 61 72 6B 00 00 00 00 24",
+            refineHex = "h54 68",
+            offsetStart = 0
+        }
+    },
+    ["Nishikawa Black Thunder"] = {
+        ["ThunderSpike_Skin Black"] = {
+            searchHex = "h54 68 75 6E 64 65 72 53 70 69 6B 65 5F 53 6B 69 6E 42 6C 61 63 6B 00 00 19",
+            refineHex = "h54 68 75",
+            offsetStart = 0
+        },
+        ["Blink Ball Black Thunder"] = {
+        	searchHex = "h42 6C 69 6E 6B 42 61 6C 6C 5F 42 6C 61 63 6B 54 68 75 6E 64 65 72 00 00 1E",
+            refineHex = "h42 6C 69",
+            offsetStart = 0
+        },
+        ["High Third Receive"] = {
+        	searchHex = "h67 6D 6C 5F 53 63 72 69 70 74 5F 53 6B 69 6C 6C 46 65 61 74 75 72 65 5F 48 69 67 68 54 68 69 72 64 52 65 63 65 69 76 65 00 00 00 00 2F 00 00 00",
+            refineHex = "h48 69 67 68",
+            offsetStart = 0
+        },
+        ["Double Spike"] = {
+        	searchHex = "h67 6D 6C 5F 53 63 72 69 70 74 5F 53 6B 69 6C 6C 46 65 61 74 75 72 65 5F 44 6F 75 62 6C 65 53 70 69 6B 65 00 17 00 00 00",
+            refineHex = "h44 6F 75",
+            offsetStart = 0
+        },
+        ["Charge"] = {
+        	searchHex = "h67 6D 6C 5F 53 63 72 69 70 74 5F 53 6B 69 6C 6C 46 65 61 74 75 72 65 5F 43 68 61 72 67 65 00 00 28",
+            refineHex = "h43 68",
+            offsetStart = 0
+        },
+        ["Top Spin Feint"] = {
+        	searchHex = "h67 6D 6C 5F 53 63 72 69 70 74 5F 53 6B 69 6C 6C 46 65 61 74 75 72 65 5F 54 6F 70 53 70 69 6E 46 65 69 6E 74 00 00 00 00 22",
+            refineHex = "h54 6F 70",
+            offsetStart = 0
+        },
+        ["Thunder Spark"] = {
+        	searchHex = "h67 6D 6C 5F 53 63 72 69 70 74 5F 53 6B 69 6C 6C 46 65 61 74 75 72 65 5F 54 68 75 6E 64 65 72 53 70 61 72 6B 00 00 00 00 24",
+            refineHex = "h54 68",
+            offsetStart = 0
+        }
+    },
+    ["Nishikawa Highschool"] = {
         ["ThunderSpike_Highschool"] = {
             searchHex = "h67 6D 6C 5F 53 63 72 69 70 74 5F 53 6B 69 6C 6C 46 65 61 74 75 72 65 5F 54 68 75 6E 64 65 72 53 70 69 6B 65 5F 48 69 67 68 73 63 68 6F 6F 6C 00 23 00 00 00 53 6B 69 6C 6C 46 65 61 74 75 72 65 5F",
             refineHex = "h54 68 75",
+            offsetStart = 0
+        },
+        ["Blink Ball Hisghschool"] = {
+        	searchHex = "h42 6C 69 6E 6B 42 61 6C 6C 5F 54 68 75 6E 64 65 72 5F 48 69 67 68 73 63 68 6F 6F 6C 00 00 00 00 1E",
+            refineHex = "h42 6C 69",
             offsetStart = 0
         },
         ["High Third Receive"] = {
@@ -1150,48 +1229,95 @@ end
 function menuPilihSkill(karakter)
     gg.setVisible(false)
     
-    -- Ambil semua nama skill sesuai karakter yang dipilih
     local skillListMenu = {}
     local skillNameList = {}
     for skillName, _ in pairs(skillDatabase[karakter]) do
         skillListMenu[#skillListMenu + 1] = skillName
         skillNameList[#skillNameList + 1] = skillName
     end
-    skillListMenu[#skillListMenu + 1] = "Kembali"
 
-    local m = gg.choice(skillListMenu, nil, "Skill " .. karakter)
-    if not m then return end
+    local choices = gg.multiChoice(skillListMenu, nil, "Pilih Skill " .. karakter .. " yang mau diedit\n(Bisa pilih lebih dari satu)")
     
-    if m == #skillListMenu then
-        menuPilihKarakter()
-    else
-        local selectedSkill = skillNameList[m]
-        eksekusiEditSkill(karakter, selectedSkill)
+    if not choices then 
+        return menuPilihKarakter() 
     end
+
+    local selectedSkills = {}
+    for i = 1, #skillListMenu do
+        if choices[i] then
+            table.insert(selectedSkills, skillNameList[i])
+        end
+    end
+
+    if #selectedSkills == 0 then
+        gg.alert("Kamu tidak memilih skill apapun!")
+        return menuPilihSkill(karakter)
+    end
+
+    -- Panggil fungsi eksekusi
+    eksekusiEditSkill(karakter, selectedSkills)
 end
 
-function eksekusiEditSkill(karakter, namaSkill)
+function eksekusiEditSkill(karakter, selectedSkills)
     gg.setVisible(false)
-    local skillData = skillDatabase[karakter][namaSkill]
     
-    gg.clearResults()
-    gg.setRanges(MEMORY_RANGE)
+    local foundSkills = {} -- Tabel buat nyimpen hasil search
+    local allFound = true
+
+    gg.toast("Mencari semua skill yang dipilih...")
     
-    gg.toast("Mengecek kode " .. namaSkill .. "...")
-    
-    -- 1. SEARCH PAKE HEX BYTE
-    gg.searchNumber(skillData.searchHex, gg.TYPE_BYTE)
-    local res = gg.getResults(100000)
-    
-    if #res == 0 then
-        gg.alert("❌ Gagal: Kode Hex " .. namaSkill .. " tidak ditemukan di memory!")
+    -- ==========================================
+    -- TAHAP 1: CARI SEMUA SKILL DULU
+    -- ==========================================
+    for i, namaSkill in ipairs(selectedSkills) do
+        local skillData = skillDatabase[karakter][namaSkill]
+        
         gg.clearResults()
-        menuPilihSkill(karakter)
-        return
+        gg.setRanges(MEMORY_RANGE)
+        
+        -- Search Hex Asal
+        gg.searchNumber(skillData.searchHex, gg.TYPE_BYTE)
+        local res = gg.getResults(100000)
+        
+        if #res > 0 then
+            -- Refine
+            gg.refineNumber(skillData.refineHex, gg.TYPE_BYTE)
+            local targetRes = gg.getResults(100000)
+            
+            local finalAddress = 0
+            if #targetRes > 0 then
+                finalAddress = targetRes[1].address 
+            else
+                finalAddress = res[1].address + skillData.offsetStart
+            end
+            
+            -- Simpen ke tabel kalau ketemu
+            table.insert(foundSkills, {
+                name = namaSkill,
+                address = finalAddress
+            })
+            gg.toast("Ketemu: " .. namaSkill)
+        else
+            gg.alert("❌ Gagal: Kode Hex " .. namaSkill .. " tidak ditemukan di memory!")
+            allFound = false
+            break
+        end
+        gg.sleep(100)
     end
-    
-    -- 2. KALAU KETEMU, TANYA MAU JADI APA
-    local m = gg.choice({
+
+    -- Kalau ada yang gagal search, balik ke menu awal
+    if not allFound or #foundSkills == 0 then
+        gg.alert("Pencarian dibatalkan karena ada skill yang tidak ditemukan.")
+        return menuPilihSkill(karakter)
+    end
+
+    gg.toast("Semua skill ketemu! Lanjut ke menu edit...")
+    gg.sleep(500)
+
+    -- ==========================================
+    -- TAHAP 2: EDIT SATU PER SATU
+    -- ==========================================
+    local skillTargets = {
         "RaulFirstImpact",
         "ThunderSpike_Skin Highschool",
         "WhiteSpike",
@@ -1214,97 +1340,82 @@ function eksekusiEditSkill(karakter, namaSkill)
         "Isabel Homunculus Last Spike",
         "Sky Serve Lisia_Skin Rudolph",
         "Chapter 12 Beast Spike For Event AI",
-        "Chapter 12 Beast Spike For Event AI",
+        "Chapter 11 Beast Spike For Event AI",
         "Calm Before The Storm",
         "Coward Jacob Horror",
-        "Default",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "Kembali"
-    }, nil, "Kode Ditemukan!\nUbah " .. namaSkill .. " Jadi:")
-    
-    local hexBaru = ""
-    if m == 1 then hexBaru = "52 61 75 6C 46 69 72 73 74 49 6D 70 61 63 74 00"
-    elseif m == 2 then hexBaru = "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 48 69 67 68 73 63 68 6F 6F 6C 00"
-    elseif m == 3 then hexBaru = "57 68 69 74 65 53 70 69 6B 65 00"
-    elseif m == 4 then hexBaru = "50 61 72 72 79 5F 41 6C 77 61 79 73 50 61 72 72 79 00"
-    elseif m == 5 then hexBaru = "41 6C 77 61 79 73 4E 6F 6F 6E 00"
-    elseif m == 6 then hexBaru = "4D 65 74 61 6C 42 6C 6F 6F 64 00"
-    elseif m == 7 then hexBaru = "54 68 75 6E 64 65 72 53 70 69 6B 65 00"
-    elseif m == 8 then hexBaru = "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 53 6B 69 6E 42 6C 61 63 6B 00"
-    elseif m == 9 then hexBaru = "44 65 65 70 53 70 69 6B 65 00"
-    elseif m == 10 then hexBaru = "44 65 65 70 53 70 69 6B 65 49 6E 73 74 65 61 64 46 65 69 6E 74 00"
-    elseif m == 11 then hexBaru = "42 65 61 73 74 53 70 69 6B 65 00"
-    elseif m == 12 then hexBaru = "42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00"
-    elseif m == 13 then hexBaru = "42 6C 75 65 44 72 61 67 6F 6E 00"
-    elseif m == 14 then hexBaru = "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 44 6F 73 61 00"
-    elseif m == 15 then hexBaru = "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 52 65 64 48 6F 6F 64 00"
-    elseif m == 16 then hexBaru = "50 61 72 72 79 5F 53 6B 69 6E 48 6F 6D 75 6E 63 75 6C 75 73 00"
-    elseif m == 17 then hexBaru = "50 61 72 72 79 5F 53 6B 69 6E 57 65 64 64 69 6E 67 00"
-    elseif m == 18 then hexBaru = "52 65 64 48 6F 6F 64 52 79 75 68 79 75 6E 46 69 72 73 74 49 6D 70 61 63 74 00"
-    elseif m == 19 then hexBaru = "48 69 67 68 56 65 72 74 69 63 61 6C 53 65 72 76 65 54 6F 73 73 5F 42 6C 61 63 6B 54 68 75 6E 64 65 72 00"
-    elseif m == 20 then hexBaru = "49 73 61 62 65 6C 48 6F 6D 75 6E 63 75 6C 75 73 4C 61 73 74 53 70 69 6B 65 00"
-    elseif m == 21 then hexBaru = "53 6B 79 53 65 72 76 65 5F 53 6B 69 6E 52 75 64 6F 6C 70 68 00"
-    elseif m == 22 then hexBaru = "43 68 61 70 74 65 72 31 32 42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00"
-    elseif m == 23 then hexBaru = "43 68 61 70 74 65 72 31 31 42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00"
-    elseif m == 24 then hexBaru = "43 61 6C 6D 42 65 66 6F 72 65 54 68 65 53 74 6F 72 6D 00"
-    elseif m == 25 then hexBaru = "43 6F 77 61 72 64 4A 61 63 6F 62 48 6F 72 72 6F 72 00"
-    elseif m == 26 then hexBaru = "44 65 66 61 75 6C 74 00"
-    elseif m == 27 then hexBaru = ""
-    elseif m == 28 then hexBaru = ""
-    elseif m == 29 then hexBaru = ""
-    elseif m == 30 then hexBaru = ""
-    elseif m == 31 then hexBaru = ""
-    elseif m == 32 then hexBaru = ""
-    elseif m == 33 then
-        gg.clearResults()
-        menuPilihSkill(karakter)
-        return
-    else
-        return
+        "Blink Ball HighSchool",
+        "Default"
+    }
+
+    local hexTargets = {
+        "52 61 75 6C 46 69 72 73 74 49 6D 70 61 63 74 00",
+        "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 48 69 67 68 73 63 68 6F 6F 6C 00",
+        "57 68 69 74 65 53 70 69 6B 65 00",
+        "50 61 72 72 79 5F 41 6C 77 61 79 73 50 61 72 72 79 00",
+        "41 6C 77 61 79 73 4E 6F 6F 6E 00",
+        "4D 65 74 61 6C 42 6C 6F 6F 64 00",
+        "54 68 75 6E 64 65 72 53 70 69 6B 65 00",
+        "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 53 6B 69 6E 42 6C 61 63 6B 00",
+        "44 65 65 70 53 70 69 6B 65 00",
+        "44 65 65 70 53 70 69 6B 65 49 6E 73 74 65 61 64 46 65 69 6E 74 00",
+        "42 65 61 73 74 53 70 69 6B 65 00",
+        "42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00",
+        "42 6C 75 65 44 72 61 67 6F 6E 00",
+        "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 44 6F 73 61 00",
+        "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 52 65 64 48 6F 6F 64 00",
+        "50 61 72 72 79 5F 53 6B 69 6E 48 6F 6D 75 6E 63 75 6C 75 73 00",
+        "50 61 72 72 79 5F 53 6B 69 6E 57 65 64 64 69 6E 67 00",
+        "52 65 64 48 6F 6F 64 52 79 75 68 79 75 6E 46 69 72 73 74 49 6D 70 61 63 74 00",
+        "48 69 67 68 56 65 72 74 69 63 61 6C 53 65 72 76 65 54 6F 73 73 5F 42 6C 61 63 6B 54 68 75 6E 64 65 72 00",
+        "49 73 61 62 65 6C 48 6F 6D 75 6E 63 75 6C 75 73 4C 61 73 74 53 70 69 6B 65 00",
+        "53 6B 79 53 65 72 76 65 5F 53 6B 69 6E 52 75 64 6F 6C 70 68 00",
+        "43 68 61 70 74 65 72 31 32 42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00",
+        "43 68 61 70 74 65 72 31 31 42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00",
+        "43 61 6C 6D 42 65 66 6F 72 65 54 68 65 53 74 6F 72 6D 00",
+        "43 6F 77 61 72 64 4A 61 63 6F 62 48 6F 72 72 6F 72 00",
+        "42 6C 69 6E 6B 42 61 6C 6C 5F 54 68 75 6E 64 65 72 5F 48 69 67 68 73 63 68 6F 6F 6C 00",
+        "44 65 66 61 75 6C 74 00"
+    }
+
+    -- Loop sebanyak skill yang udah ketemu
+    for i, skillInfo in ipairs(foundSkills) do
+        -- Tanya user mau diubah jadi apa (bukan multi-choice, tapi single choice biar jelas satu-satu)
+        local m = gg.choice(skillTargets, nil, "("..i.."/"..#foundSkills..") Ubah " .. skillInfo.name .. " Jadi:")
+        
+        if m == nil then
+            gg.alert("Edit dibatalkan.")
+            return menuPilihSkill(karakter)
+        end
+
+        local hexBaru = hexTargets[m]
+        local targetName = skillTargets[m]
+
+        -- Eksekusi edit ke alamat yang udah disimpen tadi
+        local editList = {}
+        local urutan = hexToDecimalTable(hexBaru)
+        
+        for j = 1, #urutan do
+            editList[#editList + 1] = {
+                address = skillInfo.address + (j - 1),
+                flags = gg.TYPE_BYTE,
+                value = urutan[j]
+            }
+        end
+        
+        local ok = pcall(function() gg.setValues(editList) end)
+        
+        if ok then
+            gg.toast("✅ " .. skillInfo.name .. " -> " .. targetName)
+        else
+            gg.toast("❌ Gagal " .. skillInfo.name)
+        end
+        gg.sleep(300)
     end
 
-    -- 3. REFINE PAKE HEX BYTE (h42 6C, dll)
-    gg.refineNumber(skillData.refineHex, gg.TYPE_BYTE)
-    local targetRes = gg.getResults(100000)
-    
-    local finalAddress = 0
-    if #targetRes > 0 then
-        -- Ambil hasil paling atas yang udah di-refine
-        finalAddress = targetRes[1].address 
-    else
-        -- Kalau refine gagal, fallback ke hasil search awal + offsetStart
-        finalAddress = res[1].address + skillData.offsetStart
-    end
-    
-    -- 4. EKSEKUSI EDIT
-    local editList = {}
-    local urutan = hexToDecimalTable(hexBaru)
-    
-    for i = 1, #urutan do
-        editList[#editList + 1] = {
-            address = finalAddress + (i - 1),
-            flags = gg.TYPE_BYTE,
-            value = urutan[i]
-        }
-    end
-    
-    local ok = pcall(function() gg.setValues(editList) end)
-    gg.clearResults()
-    
-    if ok then
-        gg.alert("✅ Berhasil Mengubah " .. namaSkill .. "!")
-    else
-        gg.alert("❌ Gagal mengedit memory!")
-    end
-    
-    gg.sleep(100)
+    gg.alert("✅ Selesai memproses "..#foundSkills.." skill!")
     menuPilihSkill(karakter)
 end
+
 -- SPEED HACK
 function speedHack()
     gg.setVisible(false)
@@ -1459,85 +1570,81 @@ function menuEditCharacter()
         return menuEditCharacter()
     end
 
-    -- 5. Pilih Posisi Target (WS / MB / SE)
-    local posMenu = gg.choice({"Wing Spiker (WS)", "Middle Blocker (MB)", "Setter (SE)", "Kembali"}, nil, "Pilih Posisi Karakter Tujuan")
-    if not posMenu or posMenu == 4 then return menuEditCharacter() end
+    -- 5. Pilih Mode Edit (Baru)
+    local editMode = gg.choice({"Edit Stats Saja", "Edit Stats + Karakter", "Kembali"}, nil, "Pilih Mode Edit")
+    if not editMode or editMode == 3 then return menuEditCharacter() end
 
-    local charListMenu = {}
-    local charIdList = {}
+    local targetCharId = nil
+    local newSkin = nil
 
-    if posMenu == 1 then
-        charListMenu = {
-            "Nishikawa", "Nishikawa Old", "Nishikawa?", "Raul Luca", "Raul Luca Dark Mode", "Siwoo Storm",
-            "Siwoo Highlight", "Isabel", "Lucas", "Ryuhyun", "Sara WS", "Leon", "Jenny", "Hongsi",
-            "Oasis", "Yoonseok", "Minjun", "Jaehyeon", "Youngsup", "Dave", "Seo Yuna"
-        }
-        charIdList = {
-            "98", "99", "164", "324", "352", "296",
-            "325", "159", "284", "225", "351", "158", "251", "212",
-            "50", "39", "65", "30", "10", "228", "388"
-        }
-    elseif posMenu == 2 then
-        charListMenu = {
-            "Heesung", "Roberto", "Atis", "Yamadera", "Sanghyeon", "Hanra", "Mike",
-            "Clyde", "Hari", "Crow", "Claire", "Yuri", "Han Gitae"
-        }
-        charIdList = {
-            "19", "163", "44", "96", "160", "218", "229",
-            "232", "282", "283", "322", "350", "387"
-        }
-    elseif posMenu == 3 then
-        charListMenu = {
-            "Seolhwa", "NN", "Viola", "Sohee", "Ahyeon", "Lisia", "Muyoung",
-            "Sodam", "Sara SE", "Tania", "Ellio", "Zero", "Sif", "Iris", "Jihoon"
-        }
-        charIdList = {
-            "200", "161", "157", "95", "31", "40", "221",
-            "215", "230", "231", "252", "286", "323", "349", "375"
-        }
+    -- 6. Kalau pilih Edit Stats + Karakter
+    if editMode == 2 then
+        -- Pilih Posisi Target (WS / MB / SE)
+        local posMenu = gg.choice({"Wing Spiker (WS)", "Middle Blocker (MB)", "Setter (SE)", "Kembali"}, nil, "Pilih Posisi Karakter Tujuan")
+        if not posMenu or posMenu == 4 then return menuEditCharacter() end
+
+        local charListMenu = {}
+        local charIdList = {}
+
+        if posMenu == 1 then
+            charListMenu = {
+                "Nishikawa", "Nishikawa Old", "Nishikawa?", "Raul Luca", "Raul Luca Dark Mode", "Siwoo Storm",
+                "Siwoo Highlight", "Isabel", "Lucas", "Ryuhyun", "Sara WS", "Leon", "Jenny", "Hongsi",
+                "Oasis", "Yoonseok", "Minjun", "Jaehyeon", "Youngsup", "Dave", "Seo Yuna"
+            }
+            charIdList = {
+                "98", "99", "164", "324", "352", "296",
+                "325", "159", "284", "225", "351", "158", "251", "212",
+                "50", "39", "65", "30", "10", "228", "388"
+            }
+        elseif posMenu == 2 then
+            charListMenu = {
+                "Heesung", "Roberto", "Atis", "Yamadera", "Sanghyeon", "Hanra", "Mike",
+                "Clyde", "Hari", "Crow", "Claire", "Yuri", "Han Gitae"
+            }
+            charIdList = {
+                "19", "163", "44", "96", "160", "218", "229",
+                "232", "282", "283", "322", "350", "387"
+            }
+        elseif posMenu == 3 then
+            charListMenu = {
+                "Seolhwa", "NN", "Viola", "Sohee", "Ahyeon", "Lisia", "Muyoung",
+                "Sodam", "Sara SE", "Tania", "Ellio", "Zero", "Sif", "Iris", "Jihoon"
+            }
+            charIdList = {
+                "200", "161", "157", "95", "31", "40", "221",
+                "215", "230", "231", "252", "286", "323", "349", "375"
+            }
+        end
+
+        local pickChar = gg.choice(charListMenu, nil, "Ubah Karakter Menjadi:")
+        if not pickChar then return menuEditCharacter() end
+        targetCharId = charIdList[pickChar]
+
+        -- Input Skin (Cuma muncul kalau Edit Stats + Karakter)
+        local skinInfo = 
+            "Daftar ID Skin:\n" ..
+            "1: Nishikawa+High School\n" .. "4: Nishikawa+Black Thunder\n" ..
+            "7: Ryuhyeon+Chief Disciple\n" .. "19: Ryuhyeon+Red Hood\n" ..
+            "22: Lucas+Summer Training\n" .. "8: Sara SE+Water Splash\n" ..
+            "16: Ellio+Star of the Encore\n" .. "5: Ahyeon+Style\n" ..
+            "12: Sohee+Vampire\n" .. "11: NN+Surfer\n" ..
+            "13: Lisia+Rudolph\n" .. "21: Claire+God Father\n" ..
+            "23: Hanra+Summer Training\n" .. "18: Hari+Midnight\n" ..
+            "3: Jaehyeon+Training\n" .. "17: Jenny+Shooting Star\n" ..
+            "9: Jenny+Straw Hat\n" .. "2: Isabel+Wedding Dress\n" ..
+            "10: Dave+Driver\n" .. "14: Hongshi+Maid\n" ..
+            "15: Zero+Street Artist\n" .. "20: Sif+Bounty Hunter\n" ..
+            "24: Viola+Summer Training\n" .. "25: Tania+Homunculus\n" ..
+            "26: Isabel+Homunculus\n" .. "(-1: Default)"
+
+        local pSkin = gg.prompt({"Masukkan ID Skin (Kosongkan untuk skip):\n\n" .. skinInfo}, {"-1"}, {"number"})
+        if pSkin and pSkin[1] and tostring(pSkin[1]):match("^%s*$") == nil then
+            newSkin = tonumber(pSkin[1])
+        end
     end
 
-    local pickChar = gg.choice(charListMenu, nil, "Ubah Karakter Menjadi:")
-    if not pickChar then return menuEditCharacter() end
-    local targetCharId = charIdList[pickChar]
-
--- 6. Input Skin (Setelah milih karakter)
-local skinInfo = 
-    "Daftar ID Skin:\n" ..
-    "1: Nishikawa+High School\n" ..
-    "4: Nishikawa+Black Thunder\n" ..
-    "7: Ryuhyeon+Chief Disciple\n" ..
-    "19: Ryuhyeon+Red Hood\n" ..
-    "22: Lucas+Summer Training\n" ..
-    "8: Sara SE+Water Splash\n" ..
-    "16: Ellio+Star of the Encore\n" ..
-    "5: Ahyeon+Style\n" ..
-    "12: Sohee+Vampire\n" ..
-    "11: NN+Surfer\n" ..
-    "13: Lisia+Rudolph\n" ..
-    "21: Claire+God Father\n" ..
-    "23: Hanra+Summer Training\n" ..
-    "18: Hari+Midnight\n" ..
-    "3: Jaehyeon+Training\n" ..
-    "17: Jenny+Shooting Star\n" ..
-    "9: Jenny+Straw Hat\n" ..
-    "2: Isabel+Wedding Dress\n" ..
-    "10: Dave+Driver\n" ..
-    "14: Hongshi+Maid\n" ..
-    "15: Zero+Street Artist\n" ..
-    "20: Sif+Bounty Hunter\n" ..
-    "24: Viola+Summer Training\n" ..
-    "25: Tania+Homunculus\n" ..
-    "26: Isabel+Homunculus\n" ..
-    "(-1: Default)"
-
-local pSkin = gg.prompt({"Masukkan ID Skin (Kosongkan untuk skip):\n\n" .. skinInfo}, {"-1"}, {"number"})
-local newSkin = nil
-if pSkin and pSkin[1] and tostring(pSkin[1]):match("^%s*$") == nil then
-    newSkin = tonumber(pSkin[1])
-end
-
-    -- 7. Input Stats
+    -- 7. Input Stats (Muncul di kedua mode)
     local pStats = gg.prompt(
         {"Masukkan nilai Attack:", "Masukkan nilai Defense:", "Masukkan nilai Speed:", "Masukkan nilai Jump:", "Masukkan nilai Ascencion:"},
         {"200", "300", "50", "200", "5"},
@@ -1557,17 +1664,17 @@ end
     for _, idx in ipairs(selectedIndices) do
         local addr = charAddrMap[idx]
         
-        -- Edit ID Karakter
+        -- Edit ID Karakter (Cuma di mode 2)
         if targetCharId then
             editList[#editList + 1] = {address = addr, flags = gg.TYPE_DOUBLE, value = targetCharId}
         end
         
-        -- Edit Skin (Jika diisi)
+        -- Edit Skin (Cuma di mode 2 & kalau diisi)
         if newSkin ~= nil then
             editList[#editList + 1] = {address = addr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin}
         end
 
-        -- Edit Stats
+        -- Edit Stats (Selalu jalan)
         if newAttack then
             editList[#editList + 1] = {address = addr - 0x20, flags = gg.TYPE_DOUBLE, value = newAttack} 
             editList[#editList + 1] = {address = addr + 0x30, flags = gg.TYPE_DOUBLE, value = newDefense} 
