@@ -935,6 +935,7 @@ function gameplayMenu()
         labelFastWin,
         "Edit Score",
         "Speed Hack",
+        "Backup/Restore Skill", -- MENU BARU
         "Kembali"
     }, nil, "Gameplay Menu - Hanzz_TSC")
 
@@ -942,9 +943,11 @@ function gameplayMenu()
     elseif menu == 2 then fastWin()
     elseif menu == 3 then EditScoreMenu()
     elseif menu == 4 then speedHack()
-    elseif menu == 5 then menuUtama()
+    elseif menu == 5 then menuBackupSkill()
+    elseif menu == 6 then menuUtama()
     else return end
 end
+
 -- ==========================================
 -- SISTEM EDIT SCORE (PORT DARI ALSYA)
 -- ==========================================
@@ -1415,7 +1418,101 @@ function eksekusiEditSkill(karakter, selectedSkills)
     gg.alert("✅ Selesai memproses "..#foundSkills.." skill!")
     menuPilihSkill(karakter)
 end
-
+-- ==========================================
+-- SISTEM BACKUP & RESTORE SKILL
+-- ==========================================
+function menuBackupSkill()
+    gg.setVisible(false)
+    
+    local menu = gg.choice({
+        "Backup Skill (Simpan Asli)",
+        "Restore Skill (Kembalikan Asli)",
+        "Kembali"
+    }, nil, "BACKUP & RESTORE MENU")
+    
+    if not menu or menu == 3 then return gameplayMenu() end
+    
+    if menu == 1 then
+        -- PROSES BACKUP
+        gg.toast("Memulai Backup Skill...")
+        
+        local count = 0
+        backupSkills = {} -- Reset backup lama
+        
+        for charName, skills in pairs(skillDatabase) do
+            for skillName, skillData in pairs(skills) do
+                gg.clearResults()
+                gg.setRanges(MEMORY_RANGE)
+                
+                -- Cari Hex
+                gg.searchNumber(skillData.searchHex, gg.TYPE_BYTE)
+                local res = gg.getResults(100000)
+                
+                if #res > 0 then
+                    gg.refineNumber(skillData.refineHex, gg.TYPE_BYTE)
+                    local targetRes = gg.getResults(100000)
+                    
+                    local finalAddress = 0
+                    if #targetRes > 0 then
+                        finalAddress = targetRes[1].address 
+                    else
+                        finalAddress = res[1].address + skillData.offsetStart
+                    end
+                    
+                    -- Baca 15 byte asli dari memory
+                    local readList = {}
+                    for i = 0, 14 do
+                        readList[#readList + 1] = {address = finalAddress + i, flags = gg.TYPE_BYTE}
+                    end
+                    
+                    local originalValues = gg.getValues(readList)
+                    
+                    -- Simpen ke tabel backup
+                    table.insert(backupSkills, {
+                        char = charName,
+                        name = skillName,
+                        address = finalAddress,
+                        originalBytes = originalValues
+                    })
+                    count = count + 1
+                end
+            end
+        end
+        gg.clearResults()
+        gg.alert("✅ Berhasil mem-backup " .. count .. " skill!\nSekarang lu bebas edit skill apa aja. Kalau mau balikin, tinggal masuk menu Restore.")
+        
+    elseif menu == 2 then
+        -- PROSES RESTORE
+        if #backupSkills == 0 then
+            gg.alert("❌ Kamu belum melakukan Backup! Backup dulu sebelum ngedit.")
+            return menuBackupSkill()
+        end
+        
+        gg.toast("Mengembalikan skill ke kondisi awal...")
+        
+        local restoreList = {}
+        for _, data in ipairs(backupSkills) do
+            for _, v in ipairs(data.originalBytes) do
+                restoreList[#restoreList + 1] = {
+                    address = v.address,
+                    flags = gg.TYPE_BYTE,
+                    value = v.value
+                }
+            end
+        end
+        
+        local ok = pcall(function() gg.setValues(restoreList) end)
+        gg.clearResults()
+        
+        if ok then
+            gg.alert("✅ Berhasil me-restore " .. #backupSkills .. " skill ke bentuk aslinya!")
+        else
+            gg.alert("❌ Gagal me-restore skill.")
+        end
+    end
+    
+    menuBackupSkill()
+end
 -- SPEED HACK
 function speedHack()
     gg.setVisible(false)
