@@ -675,7 +675,7 @@ function bypass2()
     gg.clearResults()
 
     -- 1. Cari nilai awal
-    gg.searchNumber("hFA CB 94 FF 83 04 D1 E8 5B 00 FD FD 7B 0C A9 FC 6F 0D A9 FA 67 0E A9", gg.TYPE_BYTE)
+    gg.searchNumber("h38 4A CE 94 47 5B CE 94 FF 83 04 D1 E8 5B 00 FD FD 7B 0C A9 FC 6F 0D A9 FA 67 0E A9", gg.TYPE_BYTE)
     
     -- 2. Refine
     gg.refineNumber("hFF 83 04 D1 E8 5B 00 FD FD 7B 0C A9 FC 6F 0D A9 FA 67 0E A9", gg.TYPE_BYTE)
@@ -1623,10 +1623,10 @@ function menuEditCharacter()
         return menuUtama()
     end
 
-    local finalBase = res2[1].address + 0xB0
+    local finalBase = res2[1].address + 0xC0
     gg.clearResults()
 
-    -- 3. Scan karakter pake offset -150 berulang kali
+    -- 3. Scan karakter
     local scanList = {}
     for i = 0, charCount - 1 do
         local addr = finalBase - (i * 0x150)
@@ -1651,7 +1651,7 @@ function menuEditCharacter()
         return menuUtama()
     end
 
-    -- 4. Multi Choice buat milih karakter ASAL
+    -- 4. Multi Choice
     local choices = gg.multiChoice(charMenu, nil, "Pilih Karakter ASAL yang mau diedit")
     if not choices then return menuUtama() end
 
@@ -1667,7 +1667,7 @@ function menuEditCharacter()
         return menuEditCharacter()
     end
 
-    -- 5. Pilih Mode Edit (Baru)
+    -- 5. Pilih Mode Edit
     local editMode = gg.choice({"Edit Stats Saja", "Edit Stats + Karakter", "Kembali"}, nil, "Pilih Mode Edit")
     if not editMode or editMode == 3 then return menuEditCharacter() end
 
@@ -1676,7 +1676,6 @@ function menuEditCharacter()
 
     -- 6. Kalau pilih Edit Stats + Karakter
     if editMode == 2 then
-        -- Pilih Posisi Target (WS / MB / SE)
         local posMenu = gg.choice({"Wing Spiker (WS)", "Middle Blocker (MB)", "Setter (SE)", "Kembali"}, nil, "Pilih Posisi Karakter Tujuan")
         if not posMenu or posMenu == 4 then return menuEditCharacter() end
 
@@ -1718,7 +1717,6 @@ function menuEditCharacter()
         if not pickChar then return menuEditCharacter() end
         targetCharId = charIdList[pickChar]
 
-        -- Input Skin (Cuma muncul kalau Edit Stats + Karakter)
         local skinInfo = 
             "Daftar ID Skin:\n" ..
             "1: Nishikawa+High School\n" .. "4: Nishikawa+Black Thunder\n" ..
@@ -1741,7 +1739,7 @@ function menuEditCharacter()
         end
     end
 
-    -- 7. Input Stats (Muncul di kedua mode)
+    -- 7. Input Stats
     local pStats = gg.prompt(
         {"Masukkan nilai Attack:", "Masukkan nilai Defense:", "Masukkan nilai Speed:", "Masukkan nilai Jump:", "Masukkan nilai Ascencion:"},
         {"200", "300", "50", "200", "5"},
@@ -1756,28 +1754,28 @@ function menuEditCharacter()
         newAsc = tonumber(pStats[5])
     end
 
-    -- 8. EKSEKUSI EDIT
+    -- 8. EKSEKUSI EDIT (PAKE OFFSET BARU)
     local editList = {}
     for _, idx in ipairs(selectedIndices) do
         local addr = charAddrMap[idx]
         
-        -- Edit ID Karakter (Cuma di mode 2)
+        -- Edit ID Karakter
         if targetCharId then
             editList[#editList + 1] = {address = addr, flags = gg.TYPE_DOUBLE, value = targetCharId}
         end
         
-        -- Edit Skin (Cuma di mode 2 & kalau diisi)
+        -- Edit Skin
         if newSkin ~= nil then
-            editList[#editList + 1] = {address = addr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin}
+            editList[#editList + 1] = {address = addr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin} -- skin = 0x50
         end
 
-        -- Edit Stats (Selalu jalan)
+        -- Edit Stats (OFFSET BARU)
         if newAttack then
-            editList[#editList + 1] = {address = addr - 0x20, flags = gg.TYPE_DOUBLE, value = newAttack} 
-            editList[#editList + 1] = {address = addr + 0x30, flags = gg.TYPE_DOUBLE, value = newDefense} 
-            editList[#editList + 1] = {address = addr - 0xC0, flags = gg.TYPE_DOUBLE, value = newSpeed} 
-            editList[#editList + 1] = {address = addr - 0x10, flags = gg.TYPE_DOUBLE, value = newJump} 
-            editList[#editList + 1] = {address = addr - 0x70, flags = gg.TYPE_DOUBLE, value = newAsc} 
+            editList[#editList + 1] = {address = addr + 0x50, flags = gg.TYPE_DOUBLE, value = newAttack}  -- attack = 0x50
+            editList[#editList + 1] = {address = addr - 0xC0, flags = gg.TYPE_DOUBLE, value = newDefense} -- defense = -0xD0
+            editList[#editList + 1] = {address = addr - 0xD0, flags = gg.TYPE_DOUBLE, value = newSpeed}   -- speed = -0xC0
+            editList[#editList + 1] = {address = addr - 0x50, flags = gg.TYPE_DOUBLE, value = newJump}    -- jump = -0x50
+            editList[#editList + 1] = {address = addr - 0x10, flags = gg.TYPE_DOUBLE, value = newAsc}     -- ascension = -0x10
         end
     end
 
@@ -1935,7 +1933,6 @@ end
 function quickScanChar(targetPosName)
     gg.setVisible(false)
     
-    -- Tentukan ID asal
     local originID = "1"
     if targetPosName == "Ohjun" then originID = "3"
     elseif targetPosName == "Jaeho" then originID = "2" end
@@ -1944,7 +1941,6 @@ function quickScanChar(targetPosName)
     gg.setRanges(MEMORY_RANGE)
     gg.toast("Mencari ID " .. targetPosName .. "...")
 
-    -- 1. Cari nilai -1 pertama
     gg.searchNumber("-1", gg.TYPE_DOUBLE)
     local res1 = gg.getResults(100000)
     if #res1 == 0 then
@@ -1952,12 +1948,10 @@ function quickScanChar(targetPosName)
         return charMenu()
     end
 
-    -- 2. Offset -0x10 dari hasil pertama
     local off1 = {}
-    for _, v in ipairs(res1) do off1[#off1+1] = {address = v.address + 0x50, flags = gg.TYPE_DOUBLE} end
+    for _, v in ipairs(res1) do off1[#off1+1] = {address = v.address - 0x30, flags = gg.TYPE_DOUBLE} end
     gg.loadResults(off1)
 
-    -- 3. Refine -1
     gg.refineNumber("-1", gg.TYPE_DOUBLE)
     local res2 = gg.getResults(100000)
     if #res2 == 0 then
@@ -1965,12 +1959,10 @@ function quickScanChar(targetPosName)
         return charMenu()
     end
 
-    -- 4. Offset -0x10 lagi
     local off2 = {}
-    for _, v in ipairs(res2) do off2[#off2+1] = {address = v.address - 0x10, flags = gg.TYPE_DOUBLE} end
+    for _, v in ipairs(res2) do off2[#off2+1] = {address = v.address - 0x20, flags = gg.TYPE_DOUBLE} end
     gg.loadResults(off2)
 
-    -- 5. Refine -1 lagi
     gg.refineNumber("-1", gg.TYPE_DOUBLE)
     local res3 = gg.getResults(100000)
     if #res3 == 0 then
@@ -1978,28 +1970,22 @@ function quickScanChar(targetPosName)
         return charMenu()
     end
 
-    -- 6. Offset -0x10 lagi
     local off3 = {}
-    for _, v in ipairs(res3) do off3[#off3+1] = {address = v.address - 0x10, flags = gg.TYPE_DOUBLE} end
+    for _, v in ipairs(res3) do off3[#off3+1] = {address = v.address + 0x40, flags = gg.TYPE_DOUBLE} end
     gg.loadResults(off3)
 
-    -- 7. Cari ID Karakter dari titik ini
     gg.searchNumber(originID, gg.TYPE_DOUBLE)
     local resFinal = gg.getResults(100000)
     
     if #resFinal == 0 then
-        gg.alert("❌ Gagal: ID " .. targetPosName .. " (" .. originID .. ") tidak ditemukan dari pola -1!")
+        gg.alert("❌ Gagal: ID " .. targetPosName .. " (" .. originID .. ") tidak ditemukan!")
         gg.clearResults()
         return charMenu()
     end
 
-    -- Ambil alamat pertama yang ketemu
     local targetAddr = resFinal[1].address
     gg.clearResults()
 
-    -- ==========================================
-    -- MASUK KE MENU EDIT
-    -- ==========================================
     local posMenu = gg.choice({"Wing Spiker (WS)", "Middle Blocker (MB)", "Setter (SE)", "Kembali"}, nil, "Pilih Posisi Karakter Tujuan")
     if not posMenu or posMenu == 4 then return charMenu() end
 
@@ -2041,35 +2027,21 @@ function quickScanChar(targetPosName)
     if not pickChar then return charMenu() end
     local targetCharId = charIdList[pickChar]
 
-    -- Input Skin
-local skinInfo = 
-    "Daftar ID Skin:\n" ..
-    "1: Nishikawa+High School\n" ..
-    "4: Nishikawa+Black Thunder\n" ..
-    "7: Ryuhyeon+Chief Disciple\n" ..
-    "19: Ryuhyeon+Red Hood\n" ..
-    "22: Lucas+Summer Training\n" ..
-    "8: Sara SE+Water Splash\n" ..
-    "16: Ellio+Star of the Encore\n" ..
-    "5: Ahyeon+Style\n" ..
-    "12: Sohee+Vampire\n" ..
-    "11: NN+Surfer\n" ..
-    "13: Lisia+Rudolph\n" ..
-    "21: Claire+God Father\n" ..
-    "23: Hanra+Summer Training\n" ..
-    "18: Hari+Midnight\n" ..
-    "3: Jaehyeon+Training\n" ..
-    "17: Jenny+Shooting Star\n" ..
-    "9: Jenny+Straw Hat\n" ..
-    "2: Isabel+Wedding Dress\n" ..
-    "10: Dave+Driver\n" ..
-    "14: Hongshi+Maid\n" ..
-    "15: Zero+Street Artist\n" ..
-    "20: Sif+Bounty Hunter\n" ..
-    "24: Viola+Summer Training\n" ..
-    "25: Tania+Homunculus\n" ..
-    "26: Isabel+Homunculus\n" ..
-    "(-1: Default)"
+    local skinInfo = 
+        "Daftar ID Skin:\n" ..
+        "1: Nishikawa+High School\n" .. "4: Nishikawa+Black Thunder\n" ..
+        "7: Ryuhyeon+Chief Disciple\n" .. "19: Ryuhyeon+Red Hood\n" ..
+        "22: Lucas+Summer Training\n" .. "8: Sara SE+Water Splash\n" ..
+        "16: Ellio+Star of the Encore\n" .. "5: Ahyeon+Style\n" ..
+        "12: Sohee+Vampire\n" .. "11: NN+Surfer\n" ..
+        "13: Lisia+Rudolph\n" .. "21: Claire+God Father\n" ..
+        "23: Hanra+Summer Training\n" .. "18: Hari+Midnight\n" ..
+        "3: Jaehyeon+Training\n" .. "17: Jenny+Shooting Star\n" ..
+        "9: Jenny+Straw Hat\n" .. "2: Isabel+Wedding Dress\n" ..
+        "10: Dave+Driver\n" .. "14: Hongshi+Maid\n" ..
+        "15: Zero+Street Artist\n" .. "20: Sif+Bounty Hunter\n" ..
+        "24: Viola+Summer Training\n" .. "25: Tania+Homunculus\n" ..
+        "26: Isabel+Homunculus\n" .. "(-1: Default)"
 
     local pSkin = gg.prompt({"Masukkan ID Skin (Kosongkan untuk skip):\n\n" .. skinInfo}, {"-1"}, {"number"})
     local newSkin = nil
@@ -2077,7 +2049,6 @@ local skinInfo =
         newSkin = tonumber(pSkin[1])
     end
 
-    -- Input Stats
     local pStats = gg.prompt(
         {"Masukkan nilai Attack:", "Masukkan nilai Defense:", "Masukkan nilai Speed:", "Masukkan nilai Jump:", "Masukkan nilai Ascencion:"},
         {"200", "300", "50", "200", "5"},
@@ -2092,21 +2063,21 @@ local skinInfo =
         newAsc = tonumber(pStats[5])
     end
 
-    -- Eksekusi Edit
+    -- EKSEKUSI EDIT PAKE OFFSET BARU
     local editList = {}
     
     if targetCharId then
         editList[#editList + 1] = {address = targetAddr, flags = gg.TYPE_DOUBLE, value = targetCharId}
     end
     if newSkin ~= nil then
-        editList[#editList + 1] = {address = targetAddr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin}
+        editList[#editList + 1] = {address = targetAddr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin} -- skin = 0x50
     end
     if newAttack then
-        editList[#editList + 1] = {address = targetAddr - 0x20, flags = gg.TYPE_DOUBLE, value = newAttack} 
-        editList[#editList + 1] = {address = targetAddr + 0x30, flags = gg.TYPE_DOUBLE, value = newDefense} 
-        editList[#editList + 1] = {address = targetAddr - 0xC0, flags = gg.TYPE_DOUBLE, value = newSpeed} 
-        editList[#editList + 1] = {address = targetAddr - 0x10, flags = gg.TYPE_DOUBLE, value = newJump} 
-        editList[#editList + 1] = {address = targetAddr - 0x70, flags = gg.TYPE_DOUBLE, value = newAsc} 
+        editList[#editList + 1] = {address = targetAddr + 0x50, flags = gg.TYPE_DOUBLE, value = newAttack}  -- attack = 0x50
+        editList[#editList + 1] = {address = targetAddr - 0xC0, flags = gg.TYPE_DOUBLE, value = newDefense} -- defense = -0xD0
+        editList[#editList + 1] = {address = targetAddr - 0xD0, flags = gg.TYPE_DOUBLE, value = newSpeed}   -- speed = -0xC0
+        editList[#editList + 1] = {address = targetAddr - 0x50, flags = gg.TYPE_DOUBLE, value = newJump}    -- jump = -0x50
+        editList[#editList + 1] = {address = targetAddr - 0x10, flags = gg.TYPE_DOUBLE, value = newAsc}     -- ascension = -0x10
     end
 
     local ok = pcall(function() gg.setValues(editList) end)
