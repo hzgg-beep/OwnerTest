@@ -11,6 +11,10 @@ local nameFile = "/sdcard/Notes/Hanzz_User.txt"
 local keyFile = "/sdcard/Notes/Hanzz_Key.txt"
 local RAW_PASTEBIN_URL = "https://pastebin.com/raw/REnycS4A"
 
+-- Variabel Global buat nyimpen backup
+local backupSkills = {}
+local editHistory = {} -- BARU: Buat nyatet history
+
 -- ==========================================
 -- KONFIGURASI TELEGRAM BOT
 -- GANTI TOKEN DENGAN TOKEN BARU dari @BotFather.
@@ -1264,26 +1268,22 @@ end
 function eksekusiEditSkill(karakter, selectedSkills)
     gg.setVisible(false)
     
-    local foundSkills = {} -- Tabel buat nyimpen hasil search
+    local foundSkills = {} 
     local allFound = true
 
     gg.toast("Mencari semua skill yang dipilih...")
     
-    -- ==========================================
     -- TAHAP 1: CARI SEMUA SKILL DULU
-    -- ==========================================
     for i, namaSkill in ipairs(selectedSkills) do
         local skillData = skillDatabase[karakter][namaSkill]
         
         gg.clearResults()
         gg.setRanges(MEMORY_RANGE)
         
-        -- Search Hex Asal
         gg.searchNumber(skillData.searchHex, gg.TYPE_BYTE)
         local res = gg.getResults(100000)
         
         if #res > 0 then
-            -- Refine
             gg.refineNumber(skillData.refineHex, gg.TYPE_BYTE)
             local targetRes = gg.getResults(100000)
             
@@ -1294,7 +1294,6 @@ function eksekusiEditSkill(karakter, selectedSkills)
                 finalAddress = res[1].address + skillData.offsetStart
             end
             
-            -- Simpen ke tabel kalau ketemu
             table.insert(foundSkills, {
                 name = namaSkill,
                 address = finalAddress
@@ -1308,7 +1307,6 @@ function eksekusiEditSkill(karakter, selectedSkills)
         gg.sleep(100)
     end
 
-    -- Kalau ada yang gagal search, balik ke menu awal
     if not allFound or #foundSkills == 0 then
         gg.alert("Pencarian dibatalkan karena ada skill yang tidak ditemukan.")
         return menuPilihSkill(karakter)
@@ -1317,72 +1315,36 @@ function eksekusiEditSkill(karakter, selectedSkills)
     gg.toast("Semua skill ketemu! Lanjut ke menu edit...")
     gg.sleep(500)
 
-    -- ==========================================
     -- TAHAP 2: EDIT SATU PER SATU
-    -- ==========================================
     local skillTargets = {
-        "RaulFirstImpact",
-        "ThunderSpike_Skin Highschool",
-        "WhiteSpike",
-        "Always Parry",
-        "Always Noon",
-        "Metal Blood",
-        "Thunder Spike Original",
-        "Thunder Spike_Skin Black",
-        "Vertical Spike",
-        "Vertical Spike Jenny",
-        "Beast Spike Raul",
-        "Beast Spike Raul For Event AI",
-        "Blue Dragon",
-        "Blue Dragon_Skin Dosa",
-        "Blue Dragon_Skin Redhood",
-        "Parry_Skin Homunculus",
-        "Parry_Skin Wedding",
-        "Ryuhyun Redhood Furst Impact",
-        "High Vertical Serve Toss Black Thunder",
-        "Isabel Homunculus Last Spike",
-        "Sky Serve Lisia_Skin Rudolph",
-        "Chapter 12 Beast Spike For Event AI",
-        "Chapter 11 Beast Spike For Event AI",
-        "Calm Before The Storm",
-        "Coward Jacob Horror",
-        "Blink Ball HighSchool",
-        "Default"
+        "RaulFirstImpact", "ThunderSpike_Skin Highschool", "WhiteSpike", "Always Parry",
+        "Always Noon", "Metal Blood", "Thunder Spike Original", "Thunder Spike_Skin Black",
+        "Vertical Spike", "Vertical Spike Jenny", "Beast Spike Raul", "Beast Spike Raul For Event AI",
+        "Blue Dragon", "Blue Dragon_Skin Dosa", "Blue Dragon_Skin Redhood", "Parry_Skin Homunculus",
+        "Parry_Skin Wedding", "Ryuhyun Redhood Furst Impact", "High Vertical Serve Toss Black Thunder",
+        "Isabel Homunculus Last Spike", "Sky Serve Lisia_Skin Rudolph", "Chapter 12 Beast Spike For Event AI",
+        "Chapter 11 Beast Spike For Event AI", "Calm Before The Storm", "Coward Jacob Horror",
+        "Blink Ball HighSchool", "Default"
     }
 
     local hexTargets = {
-        "52 61 75 6C 46 69 72 73 74 49 6D 70 61 63 74 00",
-        "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 48 69 67 68 73 63 68 6F 6F 6C 00",
-        "57 68 69 74 65 53 70 69 6B 65 00",
-        "50 61 72 72 79 5F 41 6C 77 61 79 73 50 61 72 72 79 00",
-        "41 6C 77 61 79 73 4E 6F 6F 6E 00",
-        "4D 65 74 61 6C 42 6C 6F 6F 64 00",
-        "54 68 75 6E 64 65 72 53 70 69 6B 65 00",
-        "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 53 6B 69 6E 42 6C 61 63 6B 00",
-        "44 65 65 70 53 70 69 6B 65 00",
-        "44 65 65 70 53 70 69 6B 65 49 6E 73 74 65 61 64 46 65 69 6E 74 00",
-        "42 65 61 73 74 53 70 69 6B 65 00",
-        "42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00",
-        "42 6C 75 65 44 72 61 67 6F 6E 00",
-        "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 44 6F 73 61 00",
-        "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 52 65 64 48 6F 6F 64 00",
-        "50 61 72 72 79 5F 53 6B 69 6E 48 6F 6D 75 6E 63 75 6C 75 73 00",
-        "50 61 72 72 79 5F 53 6B 69 6E 57 65 64 64 69 6E 67 00",
-        "52 65 64 48 6F 6F 64 52 79 75 68 79 75 6E 46 69 72 73 74 49 6D 70 61 63 74 00",
-        "48 69 67 68 56 65 72 74 69 63 61 6C 53 65 72 76 65 54 6F 73 73 5F 42 6C 61 63 6B 54 68 75 6E 64 65 72 00",
-        "49 73 61 62 65 6C 48 6F 6D 75 6E 63 75 6C 75 73 4C 61 73 74 53 70 69 6B 65 00",
-        "53 6B 79 53 65 72 76 65 5F 53 6B 69 6E 52 75 64 6F 6C 70 68 00",
-        "43 68 61 70 74 65 72 31 32 42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00",
-        "43 68 61 70 74 65 72 31 31 42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00",
-        "43 61 6C 6D 42 65 66 6F 72 65 54 68 65 53 74 6F 72 6D 00",
-        "43 6F 77 61 72 64 4A 61 63 6F 62 48 6F 72 72 6F 72 00",
-        "42 6C 69 6E 6B 42 61 6C 6C 5F 54 68 75 6E 64 65 72 5F 48 69 67 68 73 63 68 6F 6F 6C 00",
+        "52 61 75 6C 46 69 72 73 74 49 6D 70 61 63 74 00", "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 48 69 67 68 73 63 68 6F 6F 6C 00",
+        "57 68 69 74 65 53 70 69 6B 65 00", "50 61 72 72 79 5F 41 6C 77 61 79 73 50 61 72 72 79 00",
+        "41 6C 77 61 79 73 4E 6F 6F 6E 00", "4D 65 74 61 6C 42 6C 6F 6F 64 00",
+        "54 68 75 6E 64 65 72 53 70 69 6B 65 00", "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 53 6B 69 6E 42 6C 61 63 6B 00",
+        "44 65 65 70 53 70 69 6B 65 00", "44 65 65 70 53 70 69 6B 65 49 6E 73 74 65 61 64 46 65 69 6E 74 00",
+        "42 65 61 73 74 53 70 69 6B 65 00", "42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00",
+        "42 6C 75 65 44 72 61 67 6F 6E 00", "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 44 6F 73 61 00",
+        "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 52 65 64 48 6F 6F 64 00", "50 61 72 72 79 5F 53 6B 69 6E 48 6F 6D 75 6E 63 75 6C 75 73 00",
+        "50 61 72 72 79 5F 53 6B 69 6E 57 65 64 64 69 6E 67 00", "52 65 64 48 6F 6F 64 52 79 75 68 79 75 6E 46 69 72 73 74 49 6D 70 61 63 74 00",
+        "48 69 67 68 56 65 72 74 69 63 61 6C 53 65 72 76 65 54 6F 73 73 5F 42 6C 61 63 6B 54 68 75 6E 64 65 72 00", "49 73 61 62 65 6C 48 6F 6D 75 6E 63 75 6C 75 73 4C 61 73 74 53 70 69 6B 65 00",
+        "53 6B 79 53 65 72 76 65 5F 53 6B 69 6E 52 75 64 6F 6C 70 68 00", "43 68 61 70 74 65 72 31 32 42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00",
+        "43 68 61 70 74 65 72 31 31 42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00", "43 61 6C 6D 42 65 66 6F 72 65 54 68 65 53 74 6F 72 6D 00",
+        "43 6F 77 61 72 64 4A 61 63 6F 62 48 6F 72 72 6F 72 00", "42 6C 69 6E 6B 42 61 6C 6C 5F 54 68 75 6E 64 65 72 5F 48 69 67 68 73 63 68 6F 6F 6C 00",
         "44 65 66 61 75 6C 74 00"
     }
 
-    -- Loop sebanyak skill yang udah ketemu
     for i, skillInfo in ipairs(foundSkills) do
-        -- Tanya user mau diubah jadi apa (bukan multi-choice, tapi single choice biar jelas satu-satu)
         local m = gg.choice(skillTargets, nil, "("..i.."/"..#foundSkills..") Ubah " .. skillInfo.name .. " Jadi:")
         
         if m == nil then
@@ -1393,7 +1355,23 @@ function eksekusiEditSkill(karakter, selectedSkills)
         local hexBaru = hexTargets[m]
         local targetName = skillTargets[m]
 
-        -- Eksekusi edit ke alamat yang udah disimpen tadi
+        -- Simpen history SEBELUM diedit
+        local readList = {}
+        for j = 0, 14 do
+            readList[#readList + 1] = {address = skillInfo.address + j, flags = gg.TYPE_BYTE}
+        end
+        local originalBytes = gg.getValues(readList)
+
+        -- Masukin ke history
+        table.insert(editHistory, {
+            char = karakter,
+            oldName = skillInfo.name,
+            newName = targetName,
+            address = skillInfo.address,
+            originalBytes = originalBytes
+        })
+
+        -- Eksekusi edit
         local editList = {}
         local urutan = hexToDecimalTable(hexBaru)
         
@@ -1419,79 +1397,76 @@ function eksekusiEditSkill(karakter, selectedSkills)
     menuPilihSkill(karakter)
 end
 -- ==========================================
--- SISTEM BACKUP & RESTORE SKILL
+-- SISTEM BACKUP & RESTORE SKILL (UPDATED)
 -- ==========================================
 function menuBackupSkill()
     gg.setVisible(false)
     
     local menu = gg.choice({
-        "Backup Skill (Simpan Asli)",
-        "Restore Skill (Kembalikan Asli)",
+        "Restore Skill Tertentu",
+        "Restore Semua ke Asli",
+        "Bersihkan Riwayat Edit",
         "Kembali"
-    }, nil, "BACKUP & RESTORE MENU")
+    }, nil, "RESTORE MENU")
     
-    if not menu or menu == 3 then return gameplayMenu() end
+    if not menu or menu == 4 then return gameplayMenu() end
     
     if menu == 1 then
-        -- PROSES BACKUP
-        gg.toast("Memulai Backup Skill...")
-        
+        -- RESTORE PILIHAN
+        if #editHistory == 0 then
+            gg.alert("❌ Belum ada riwayat edit skill di sesi ini.\nLakukan edit dulu baru bisa restore.")
+            return menuBackupSkill()
+        end
+
+        local historyMenu = {}
+        for i, data in ipairs(editHistory) do
+            historyMenu[#historyMenu + 1] = "["..data.char.."] "..data.oldName.." -> "..data.newName
+        end
+
+        local pick = gg.multiChoice(historyMenu, nil, "Pilih Skill yang mau di-Restore:")
+        if not pick then return menuBackupSkill() end
+
+        local restoreList = {}
         local count = 0
-        backupSkills = {} -- Reset backup lama
-        
-        for charName, skills in pairs(skillDatabase) do
-            for skillName, skillData in pairs(skills) do
-                gg.clearResults()
-                gg.setRanges(MEMORY_RANGE)
-                
-                -- Cari Hex
-                gg.searchNumber(skillData.searchHex, gg.TYPE_BYTE)
-                local res = gg.getResults(100000)
-                
-                if #res > 0 then
-                    gg.refineNumber(skillData.refineHex, gg.TYPE_BYTE)
-                    local targetRes = gg.getResults(100000)
-                    
-                    local finalAddress = 0
-                    if #targetRes > 0 then
-                        finalAddress = targetRes[1].address 
-                    else
-                        finalAddress = res[1].address + skillData.offsetStart
-                    end
-                    
-                    -- Baca 15 byte asli dari memory
-                    local readList = {}
-                    for i = 0, 14 do
-                        readList[#readList + 1] = {address = finalAddress + i, flags = gg.TYPE_BYTE}
-                    end
-                    
-                    local originalValues = gg.getValues(readList)
-                    
-                    -- Simpen ke tabel backup
-                    table.insert(backupSkills, {
-                        char = charName,
-                        name = skillName,
-                        address = finalAddress,
-                        originalBytes = originalValues
-                    })
-                    count = count + 1
+        for i = 1, #historyMenu do
+            if pick[i] then
+                local data = editHistory[i]
+                for _, v in ipairs(data.originalBytes) do
+                    restoreList[#restoreList + 1] = {
+                        address = v.address,
+                        flags = gg.TYPE_BYTE,
+                        value = v.value
+                    }
                 end
+                count = count + 1
             end
         end
+
+        if #restoreList == 0 then
+            gg.toast("Tidak ada yang dipilih.")
+            return menuBackupSkill()
+        end
+
+        local ok = pcall(function() gg.setValues(restoreList) end)
         gg.clearResults()
-        gg.alert("✅ Berhasil mem-backup " .. count .. " skill!\nSekarang lu bebas edit skill apa aja. Kalau mau balikin, tinggal masuk menu Restore.")
         
+        if ok then
+            gg.alert("✅ Berhasil me-restore "..count.." skill ke bentuk aslinya!")
+        else
+            gg.alert("❌ Gagal me-restore.")
+        end
+
     elseif menu == 2 then
-        -- PROSES RESTORE
-        if #backupSkills == 0 then
-            gg.alert("❌ Kamu belum melakukan Backup! Backup dulu sebelum ngedit.")
+        -- RESTORE SEMUA
+        if #editHistory == 0 then
+            gg.alert("❌ Belum ada riwayat edit skill di sesi ini.")
             return menuBackupSkill()
         end
         
-        gg.toast("Mengembalikan skill ke kondisi awal...")
+        gg.toast("Mengembalikan semua skill...")
         
         local restoreList = {}
-        for _, data in ipairs(backupSkills) do
+        for _, data in ipairs(editHistory) do
             for _, v in ipairs(data.originalBytes) do
                 restoreList[#restoreList + 1] = {
                     address = v.address,
@@ -1505,10 +1480,16 @@ function menuBackupSkill()
         gg.clearResults()
         
         if ok then
-            gg.alert("✅ Berhasil me-restore " .. #backupSkills .. " skill ke bentuk aslinya!")
+            gg.alert("✅ Berhasil me-restore SEMUA skill ke bentuk aslinya!")
+            editHistory = {} -- Bersihin history setelah restore semua
         else
-            gg.alert("❌ Gagal me-restore skill.")
+            gg.alert("❌ Gagal me-restore.")
         end
+
+    elseif menu == 3 then
+        -- BERSIHKAN HISTORY
+        editHistory = {}
+        gg.alert("✅ Riwayat edit berhasil dibersihkan!")
     end
     
     menuBackupSkill()
@@ -1603,7 +1584,7 @@ function menuEditCharacter()
     gg.setRanges(MEMORY_RANGE)
     gg.toast("Mencari alamat dasar karakter...")
 
-    -- 1. Cari Base Address
+    -- 1. Cari Base Address (Ambil SEMUA hasil)
     gg.searchNumber("206398", gg.TYPE_DOUBLE)
     local res1 = gg.getResults(100000)
     if #res1 == 0 then
@@ -1611,11 +1592,19 @@ function menuEditCharacter()
         return menuUtama()
     end
 
-    local baseAddr = res1[1].address - 0x10
-    gg.clearResults()
-    gg.loadResults({{address = baseAddr, flags = gg.TYPE_DOUBLE}})
+    -- 2. Geser SEMUA hasil ke -0x10 (Anti Gagal Refine)
+    local shiftedResults = {}
+    for i, v in ipairs(res1) do
+        shiftedResults[#shiftedResults + 1] = {
+            address = v.address - 0x10, 
+            flags = gg.TYPE_DOUBLE
+        }
+    end
     
-    -- 2. Refine
+    gg.clearResults()
+    gg.loadResults(shiftedResults)
+
+    -- 3. Refine angka 226618
     gg.refineNumber("226618", gg.TYPE_DOUBLE)
     local res2 = gg.getResults(100000)
     if #res2 == 0 then
@@ -1624,9 +1613,8 @@ function menuEditCharacter()
     end
 
     local finalBase = res2[1].address + 0xC0
-    gg.clearResults()
 
-    -- 3. Scan karakter
+    -- 4. Scan karakter
     local scanList = {}
     for i = 0, charCount - 1 do
         local addr = finalBase - (i * 0x150)
@@ -1651,7 +1639,7 @@ function menuEditCharacter()
         return menuUtama()
     end
 
-    -- 4. Multi Choice
+    -- 5. Multi Choice
     local choices = gg.multiChoice(charMenu, nil, "Pilih Karakter ASAL yang mau diedit")
     if not choices then return menuUtama() end
 
@@ -1667,14 +1655,14 @@ function menuEditCharacter()
         return menuEditCharacter()
     end
 
-    -- 5. Pilih Mode Edit
+    -- 6. Pilih Mode Edit
     local editMode = gg.choice({"Edit Stats Saja", "Edit Stats + Karakter", "Kembali"}, nil, "Pilih Mode Edit")
     if not editMode or editMode == 3 then return menuEditCharacter() end
 
     local targetCharId = nil
     local newSkin = nil
 
-    -- 6. Kalau pilih Edit Stats + Karakter
+    -- 7. Kalau pilih Edit Stats + Karakter
     if editMode == 2 then
         local posMenu = gg.choice({"Wing Spiker (WS)", "Middle Blocker (MB)", "Setter (SE)", "Kembali"}, nil, "Pilih Posisi Karakter Tujuan")
         if not posMenu or posMenu == 4 then return menuEditCharacter() end
@@ -1739,7 +1727,7 @@ function menuEditCharacter()
         end
     end
 
-    -- 7. Input Stats
+    -- 8. Input Stats
     local pStats = gg.prompt(
         {"Masukkan nilai Attack:", "Masukkan nilai Defense:", "Masukkan nilai Speed:", "Masukkan nilai Jump:", "Masukkan nilai Ascencion:"},
         {"200", "300", "50", "200", "5"},
@@ -1754,7 +1742,7 @@ function menuEditCharacter()
         newAsc = tonumber(pStats[5])
     end
 
-    -- 8. EKSEKUSI EDIT (PAKE OFFSET BARU)
+    -- 9. EKSEKUSI EDIT (PAKE OFFSET BARU)
     local editList = {}
     for _, idx in ipairs(selectedIndices) do
         local addr = charAddrMap[idx]
@@ -1766,16 +1754,16 @@ function menuEditCharacter()
         
         -- Edit Skin
         if newSkin ~= nil then
-            editList[#editList + 1] = {address = addr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin} -- skin = 0x50
+            editList[#editList + 1] = {address = addr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin}
         end
 
         -- Edit Stats (OFFSET BARU)
         if newAttack then
-            editList[#editList + 1] = {address = addr + 0x50, flags = gg.TYPE_DOUBLE, value = newAttack}  -- attack = 0x50
-            editList[#editList + 1] = {address = addr - 0xC0, flags = gg.TYPE_DOUBLE, value = newDefense} -- defense = -0xD0
-            editList[#editList + 1] = {address = addr - 0xD0, flags = gg.TYPE_DOUBLE, value = newSpeed}   -- speed = -0xC0
-            editList[#editList + 1] = {address = addr - 0x50, flags = gg.TYPE_DOUBLE, value = newJump}    -- jump = -0x50
-            editList[#editList + 1] = {address = addr - 0x10, flags = gg.TYPE_DOUBLE, value = newAsc}     -- ascension = -0x10
+            editList[#editList + 1] = {address = addr + 0x50, flags = gg.TYPE_DOUBLE, value = newAttack}
+            editList[#editList + 1] = {address = addr - 0xC0, flags = gg.TYPE_DOUBLE, value = newDefense}
+            editList[#editList + 1] = {address = addr - 0xD0, flags = gg.TYPE_DOUBLE, value = newSpeed}
+            editList[#editList + 1] = {address = addr - 0x50, flags = gg.TYPE_DOUBLE, value = newJump}
+            editList[#editList + 1] = {address = addr - 0x10, flags = gg.TYPE_DOUBLE, value = newAsc}
         end
     end
 
@@ -1866,7 +1854,7 @@ function prosesMastery(namaMasteryAwal)
 
     -- 4. Offset +0x20 -> Cari ID Mastery Lagi
     local off2 = {}
-    for _, v in ipairs(resMastery) do off2[#off2+1] = {address = v.address + 0x20, flags = gg.TYPE_DOUBLE} end
+    for _, v in ipairs(resMastery) do off2[#off2+1] = {address = v.address - 0x50, flags = gg.TYPE_DOUBLE} end
     gg.loadResults(off2)
 
     gg.searchNumber(namaMasteryAwal, gg.TYPE_DOUBLE)
@@ -1948,8 +1936,11 @@ function quickScanChar(targetPosName)
         return charMenu()
     end
 
+    -- Geser SEMUA hasil ke -0x30
     local off1 = {}
-    for _, v in ipairs(res1) do off1[#off1+1] = {address = v.address - 0x30, flags = gg.TYPE_DOUBLE} end
+    for _, v in ipairs(res1) do 
+        off1[#off1+1] = {address = v.address - 0x30, flags = gg.TYPE_DOUBLE} 
+    end
     gg.loadResults(off1)
 
     gg.refineNumber("-1", gg.TYPE_DOUBLE)
@@ -1959,8 +1950,11 @@ function quickScanChar(targetPosName)
         return charMenu()
     end
 
+    -- Geser SEMUA hasil ke -0x20
     local off2 = {}
-    for _, v in ipairs(res2) do off2[#off2+1] = {address = v.address - 0x20, flags = gg.TYPE_DOUBLE} end
+    for _, v in ipairs(res2) do 
+        off2[#off2+1] = {address = v.address - 0x20, flags = gg.TYPE_DOUBLE} 
+    end
     gg.loadResults(off2)
 
     gg.refineNumber("-1", gg.TYPE_DOUBLE)
@@ -1970,10 +1964,14 @@ function quickScanChar(targetPosName)
         return charMenu()
     end
 
+    -- Geser SEMUA hasil ke +0x40
     local off3 = {}
-    for _, v in ipairs(res3) do off3[#off3+1] = {address = v.address + 0x40, flags = gg.TYPE_DOUBLE} end
+    for _, v in ipairs(res3) do 
+        off3[#off3+1] = {address = v.address + 0x40, flags = gg.TYPE_DOUBLE} 
+    end
     gg.loadResults(off3)
 
+    -- Cari ID Karakter dari titik ini
     gg.searchNumber(originID, gg.TYPE_DOUBLE)
     local resFinal = gg.getResults(100000)
     
@@ -2070,14 +2068,14 @@ function quickScanChar(targetPosName)
         editList[#editList + 1] = {address = targetAddr, flags = gg.TYPE_DOUBLE, value = targetCharId}
     end
     if newSkin ~= nil then
-        editList[#editList + 1] = {address = targetAddr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin} -- skin = 0x50
+        editList[#editList + 1] = {address = targetAddr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin}
     end
     if newAttack then
-        editList[#editList + 1] = {address = targetAddr + 0x50, flags = gg.TYPE_DOUBLE, value = newAttack}  -- attack = 0x50
-        editList[#editList + 1] = {address = targetAddr - 0xC0, flags = gg.TYPE_DOUBLE, value = newDefense} -- defense = -0xD0
-        editList[#editList + 1] = {address = targetAddr - 0xD0, flags = gg.TYPE_DOUBLE, value = newSpeed}   -- speed = -0xC0
-        editList[#editList + 1] = {address = targetAddr - 0x50, flags = gg.TYPE_DOUBLE, value = newJump}    -- jump = -0x50
-        editList[#editList + 1] = {address = targetAddr - 0x10, flags = gg.TYPE_DOUBLE, value = newAsc}     -- ascension = -0x10
+        editList[#editList + 1] = {address = targetAddr + 0x50, flags = gg.TYPE_DOUBLE, value = newAttack}
+        editList[#editList + 1] = {address = targetAddr - 0xC0, flags = gg.TYPE_DOUBLE, value = newDefense}
+        editList[#editList + 1] = {address = targetAddr - 0xD0, flags = gg.TYPE_DOUBLE, value = newSpeed}
+        editList[#editList + 1] = {address = targetAddr - 0x50, flags = gg.TYPE_DOUBLE, value = newJump}
+        editList[#editList + 1] = {address = targetAddr - 0x10, flags = gg.TYPE_DOUBLE, value = newAsc}
     end
 
     local ok = pcall(function() gg.setValues(editList) end)
