@@ -11,10 +11,129 @@ local nameFile = "/sdcard/Notes/Hanzz_User.txt"
 local keyFile = "/sdcard/Notes/Hanzz_Key.txt"
 local RAW_PASTEBIN_URL = "https://pastebin.com/raw/REnycS4A"
 
+-- Konfigurasi file favorit
+local favFile = "/sdcard/Notes/Hanzz_Favorite.txt"
+
+-- Fungsi muat favorit dari file
+local function loadFavorite()
+    favoriteSkills = {}
+    local file = io.open(favFile, "r")
+    if file then
+        for line in file:lines() do
+            local clean = line:match("^%s*(.-)%s*$")
+            if clean ~= "" then
+                table.insert(favoriteSkills, clean)
+            end
+        end
+        file:close()
+    end
+end
+
+-- Fungsi simpan favorit ke file
+local function saveFavorite()
+    local file = io.open(favFile, "w")
+    if file then
+        for _, skill in ipairs(favoriteSkills) do
+            file:write(skill .. "\n")
+        end
+        file:close()
+    end
+end
+
 -- Variabel Global buat nyimpen backup
 local backupSkills = {}
 local editHistory = {} -- BARU: Buat nyatet history
+local favoriteSkills = {} -- Buat nyimpen list favorit
+-- ==========================================
+-- DATABASE LIST SKILL (GLOBAL)
+-- ==========================================
+local allNormalSkills = {
+    "AbsoluteBlock", "AbyssToss_SkinStarOfTheEncore", "AlwaysGotoBlock", "AlwaysNoon", "AlwaysParry",
+    "AssistModeBallPause", "AutoCorrectSpike", "BeastFang", "BeastSpike", "BeastSpikeForAI",
+    "BladeWind", "BlinkBallHighSchool", "BlinkBall_BlackThunder", "BlinkBall_Rainbow", "BlitzSpin",
+    "BlueDragon", "BlueDragon_SkinDosa", "BlueDragon_SkinRedhood", "BraveHeart", "BraveTiger",
+    "BraveTiger_SkinMaid", "BungeoPpang", "CalmBeforeTheStorm", "CancelBlockOnOut", "CannotSlide",
+    "CemeteryGates", "Charge", "Charge_Jenny", "Charge_Jenny_SkinShootingStar", "ChemicalHit",
+    "ChemicalHit_SkinAhyeonStein", "CoreHit", "CourtCompass", "CowardJacobHorror",
+    "CriticalToss_SkinWaterSplash", "CrownPass", "DarkCrow", "DeathFlower_SkinMidnight",
+    "DeepSpike", "DeepSpikeInsteadFeint", "Determination", "Determination_Training",
+    "DirectSpiker", "DirectToss", "DoubleSpike", "DoubleSpike_SkinBlack", "DreamEater",
+    "EasyAttackForBeginnerToss", "EveryActionSpike", "ExcellentConcentration", "FarPassFeint",
+    "FastBlockCharge", "FastNoon", "FeintNearTheNet", "FeintWhenNotToss", "FeintWhenOpponentHPLow",
+    "FeintWhenWinning", "Flare", "Flare_SkinSummerTraining", "FlowerReceive", "FlyingGuard",
+    "FocusOnQuickWhenWinning", "ForceSpikeAimCenter", "FortuneTurn", "Frantic", "GearUp",
+    "GearUp_SkinHomunculus", "GetWeaker", "GitaeFirstBlock", "Gitae_AI", "GladiusWall",
+    "GladiusWall_SkinBountyHunter", "GuardStrike", "Gust", "HeadToHead", "HealingToss",
+    "HealingToss_SkinSummerTraining", "Helios", "Helios_SkinSummerTraining", "HiddenBrilliance",
+    "HighThirdReceive", "HighVerticalServeToss", "HighVerticalServeToss_BlackThunder",
+    "Highlight", "HundredForgedSteel", "HybridFloaterServe", "HybridFloaterServe_SkinStarOfTheEncore",
+    "Icarus", "Icarus_SkinShootingStar", "Icarus_SkinStrawHat", "ImperialOrder", "Intimidation",
+    "Intimidation_2", "IronClaw", "IronHalberd", "IsabelHomunculusLastSpike", "KindDictator",
+    "LightOfHope", "LightStepMB", "Lock", "LongSpike", "LongSpikeToBlockOut", "LongSpikeToLine",
+    "LongWaitSpike", "LucasServeToss", "LunarFlask", "Meow", "MetalBlood", "MiddleVerticalServeToss",
+    "MiraculousToss", "Noon", "Noon_Des", "Noon_SunSetDes", "OasisServeToss", "OffensiveDirectToss",
+    "OnepointPlayer", "OutOfBoundsSpike", "OutOfShape", "Overdrive", "Overdrive_SkinGodFather",
+    "Parry_SkinHomunculus", "Parry_SkinWedding", "RaulFirstImpact", "RedHoodRyuhyunFirstImpact",
+    "RyuhyunRedhoodFurstImpact", "SkyServeLisia_SkinRudolph", "ThunderSpike_HighSchool",
+    "ThunderSpike_Original", "ThunderSpike_SkinBlack", "VerticalSpike", "VerticalSpikeJenny",
+    "WhiteSpike", "Default"
+}
 
+local allNormalHex = {
+    "41 62 73 6F 6C 75 74 65 42 6C 6F 63 6B 00", "41 62 79 73 73 54 6F 73 73 5F 53 6B 69 6E 53 74 61 72 4F 66 54 68 65 45 6E 63 6F 72 65 00",
+    "41 6C 77 61 79 73 47 6F 74 6F 42 6C 6F 63 6B 00", "41 6C 77 61 79 73 4E 6F 6F 6E 00", "50 61 72 72 79 5F 41 6C 77 61 79 73 50 61 72 72 79 00",
+    "41 73 73 69 73 74 4D 6F 64 65 42 61 6C 6C 50 61 75 73 65 00", "41 75 74 6F 43 6F 72 72 65 63 74 53 70 69 6B 65 00",
+    "42 65 61 73 74 46 61 6E 67 00", "42 65 61 73 74 53 70 69 6B 65 00", "42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00",
+    "42 6C 61 64 65 57 69 6E 64 00", "42 6C 69 6E 6B 42 61 6C 6C 5F 54 68 75 6E 64 65 72 5F 48 69 67 68 73 63 68 6F 6F 6C 00",
+    "42 6C 69 6E 6B 42 61 6C 6C 5F 42 6C 61 63 6B 54 68 75 6E 64 65 72 00", "42 6C 69 6E 6B 42 61 6C 6C 5F 52 61 69 6E 62 6F 77 00",
+    "42 6C 69 74 7A 53 70 69 6E 00", "42 6C 75 65 44 72 61 67 6F 6E 00", "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 44 6F 73 61 00",
+    "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 52 65 64 48 6F 6F 64 00", "42 72 61 76 65 48 65 61 72 74 00", "42 72 61 76 65 54 69 67 65 72 00",
+    "42 72 61 76 65 54 69 67 65 72 5F 53 6B 69 6E 4D 61 69 64 00", "42 75 6E 67 65 6F 50 70 61 6E 67 00", "43 61 6C 6D 42 65 66 6F 72 65 54 68 65 53 74 6F 72 6D 00",
+    "43 61 6E 63 65 6C 42 6C 6F 63 6B 4F 6E 4F 75 74 00", "43 61 6E 6E 6F 74 53 6C 69 64 65 00", "43 65 6D 65 74 65 72 79 47 61 74 65 73 00",
+    "43 68 61 72 67 65 00", "43 68 61 72 67 65 5F 4A 65 6E 6E 79 00", "43 68 61 72 67 65 5F 4A 65 6E 6E 79 5F 53 6B 69 6E 53 68 6F 6F 74 69 6E 67 53 74 61 72 00",
+    "43 68 65 6D 69 63 61 6C 48 69 74 00", "43 68 65 6D 69 63 61 6C 48 69 74 5F 53 6B 69 6E 41 68 79 65 6F 6E 53 74 65 69 6E 00",
+    "43 6F 72 65 48 69 74 00", "43 6F 75 72 74 43 6F 6D 70 61 73 73 00", "43 6F 77 61 72 64 4A 61 63 6F 62 48 6F 72 72 6F 72 00",
+    "43 72 69 74 69 63 61 6C 54 6F 73 73 5F 53 6B 69 6E 57 61 74 65 72 53 70 6C 61 73 68 00", "43 72 6F 77 6E 50 61 73 73 00",
+    "44 61 72 6B 43 72 6F 77 00", "44 65 61 74 68 46 6C 6F 77 65 72 5F 53 6B 69 6E 4D 69 64 6E 69 67 68 74 00",
+    "44 65 65 70 53 70 69 6B 65 00", "44 65 65 70 53 70 69 6B 65 49 6E 73 74 65 61 64 46 65 69 6E 74 00",
+    "44 65 74 65 72 6D 69 6E 61 74 69 6F 6E 00", "44 65 74 65 72 6D 69 6E 61 74 69 6F 6E 5F 54 72 61 69 6E 69 6E 67 00",
+    "44 69 72 65 63 74 53 70 69 6B 65 72 00", "44 69 72 65 63 74 54 6F 73 73 00", "44 6F 75 62 6C 65 53 70 69 6B 65 00",
+    "44 6F 75 62 6C 65 53 70 69 6B 65 5F 53 6B 69 6E 42 6C 61 63 6B 00", "44 72 65 61 6D 45 61 74 65 72 00",
+    "45 61 73 79 41 74 74 61 63 6B 46 6F 72 42 65 67 69 6E 6E 65 72 54 6F 73 73 00", "45 76 65 72 79 41 63 74 69 6F 6E 53 70 69 6B 65 00",
+    "45 78 63 65 6C 6C 65 6E 74 43 6F 6E 63 65 6E 74 72 61 74 69 6F 6E 00", "46 61 72 50 61 73 73 46 65 69 6E 74 00",
+    "46 61 73 74 42 6C 6F 63 6B 43 68 61 72 67 65 00", "46 61 73 74 4E 6F 6F 6E 00", "46 65 69 6E 74 4E 65 61 72 54 68 65 4E 65 74 00",
+    "46 65 69 6E 74 57 68 65 6E 4E 6F 74 54 6F 73 73 00", "46 65 69 6E 74 57 68 65 6E 4F 70 70 6F 6E 65 6E 74 48 50 4C 6F 77 00",
+    "46 65 69 6E 74 57 68 65 6E 57 69 6E 6E 69 6E 67 00", "46 6C 61 72 65 00", "46 6C 61 72 65 5F 53 6B 69 6E 53 75 6D 6D 65 72 54 72 61 69 6E 69 6E 67 00",
+    "46 6C 6F 77 65 72 52 65 63 65 69 76 65 00", "46 6C 79 69 6E 67 47 75 61 72 64 00", "46 6F 63 75 73 4F 6E 51 75 69 63 6B 57 68 65 6E 57 69 6E 6E 69 6E 67 00",
+    "46 6F 72 63 65 53 70 69 6B 65 41 69 6D 43 65 6E 74 65 72 00", "46 6F 72 74 75 6E 65 73 54 75 72 6E 00", "46 72 61 6E 74 69 63 00",
+    "47 65 61 72 55 70 00", "47 65 61 72 55 70 5F 53 6B 69 6E 48 6F 6D 75 6E 63 75 6C 75 73 00", "47 65 74 57 65 61 6B 65 72 00",
+    "47 69 74 61 65 46 69 72 73 74 42 6C 6F 63 6B 00", "47 69 74 61 65 5F 41 49 00", "47 6C 61 64 69 75 73 57 61 6C 6C 00",
+    "47 6C 61 64 69 75 73 57 61 6C 6C 5F 53 6B 69 6E 42 6F 75 6E 74 79 48 75 6E 74 65 72 00", "47 75 61 72 64 53 74 72 69 6B 65 00", "47 75 73 74 00",
+    "48 65 61 64 54 6F 48 65 61 64 00", "48 65 61 6C 69 6E 67 54 6F 73 73 00", "48 65 61 6C 69 6E 67 54 6F 73 73 5F 53 6B 69 6E 53 75 6D 6D 65 72 54 72 61 69 6E 69 6E 67 00",
+    "48 65 6C 69 6F 73 00", "48 65 6C 69 6F 73 5F 53 6B 69 6E 53 75 6D 6D 65 72 54 72 61 69 6E 69 6E 67 00", "48 69 64 64 65 6E 42 72 69 6C 6C 69 61 6E 63 65 00",
+    "48 69 67 68 54 68 69 72 64 52 65 63 65 69 76 65 00", "48 69 67 68 56 65 72 74 69 63 61 6C 53 65 72 76 65 54 6F 73 73 00",
+    "48 69 67 68 56 65 72 74 69 63 61 6C 53 65 72 76 65 54 6F 73 73 5F 42 6C 61 63 6B 54 68 75 6E 64 65 72 00",
+    "48 69 67 68 6C 69 67 68 74 00", "48 75 6E 64 72 65 64 46 6F 72 67 65 64 53 74 65 65 6C 00",
+    "48 79 62 72 69 64 46 6C 6F 61 74 65 72 53 65 72 76 65 00", "48 79 62 72 69 64 46 6C 6F 61 74 65 72 53 65 72 76 65 5F 53 6B 69 6E 53 74 61 72 4F 66 54 68 65 45 6E 63 6F 72 65 00",
+    "49 63 61 72 75 73 00", "49 63 61 72 75 73 5F 53 6B 69 6E 53 68 6F 6F 74 69 6E 67 53 74 61 72 00", "49 63 61 72 75 73 5F 53 6B 69 6E 53 74 72 61 77 48 61 74 00",
+    "49 6D 70 65 72 69 61 6C 4F 72 64 65 72 00", "49 6E 74 69 6D 69 64 61 74 69 6F 6E 00", "49 6E 74 69 6D 69 64 61 74 69 6F 6E 5F 32 00",
+    "49 72 6F 6E 43 6C 61 77 00", "49 72 6F 6E 48 61 6C 62 65 72 64 00", "49 73 61 62 65 6C 48 6F 6D 75 6E 63 75 6C 75 73 4C 61 73 74 53 70 69 6B 65 00",
+    "4B 69 6E 64 44 69 63 74 61 74 6F 72 00", "4C 69 67 68 74 4F 66 48 6F 70 65 00", "4C 69 67 68 74 53 74 65 70 4D 42 00",
+    "4C 6F 63 6B 00", "4C 6F 6E 67 53 70 69 6B 65 00", "4C 6F 6E 67 53 70 69 6B 65 54 6F 42 6C 6F 63 6B 4F 75 74 00",
+    "4C 6F 6E 67 53 70 69 6B 65 54 6F 4C 69 6E 65 00", "4C 6F 6E 67 57 61 69 74 53 70 69 6B 65 00", "4C 75 63 61 73 53 65 72 76 65 54 6F 73 73 00",
+    "4C 75 6E 61 72 46 6C 61 73 6B 00", "4D 65 6F 77 00", "4D 65 74 61 6C 42 6C 6F 6F 64 00",
+    "4D 69 64 64 6C 65 56 65 72 74 69 63 61 6C 53 65 72 76 65 54 6F 73 73 00", "4D 69 72 61 63 75 6C 6F 75 73 54 6F 73 73 00",
+    "4E 6F 6F 6E 00", "4E 6F 6F 6E 5F 44 65 73 00", "4E 6F 6F 6E 5F 53 75 6E 53 65 74 44 65 73 00",
+    "4F 61 73 69 73 53 65 72 76 65 54 6F 73 73 00", "4F 66 66 65 6E 73 69 76 65 44 69 72 65 63 74 54 6F 73 73 00",
+    "4F 6E 65 70 6F 69 6E 74 50 6C 61 79 65 72 00", "4F 75 74 4F 66 42 6F 75 6E 64 73 53 70 69 6B 65 00", "4F 75 74 4F 66 53 68 61 70 65 00",
+    "4F 76 65 72 64 72 69 76 65 00", "4F 76 65 72 64 72 69 76 65 5F 53 6B 69 6E 47 6F 64 46 61 74 68 65 72 00",
+    "50 61 72 72 79 5F 53 6B 69 6E 48 6F 6D 75 6E 63 75 6C 75 73 00", "50 61 72 72 79 5F 53 6B 69 6E 57 65 64 64 69 6E 67 00",
+    "52 61 75 6C 46 69 72 73 74 49 6D 70 61 63 74 00", "52 65 64 48 6F 6F 64 52 79 75 68 79 75 6E 46 69 72 73 74 49 6D 70 61 63 74 00",
+    "52 79 75 68 79 75 6E 52 65 64 68 6F 6F 64 46 75 72 73 74 49 6D 70 61 63 74 00", "53 6B 79 53 65 72 76 65 4C 69 73 69 61 5F 53 6B 69 6E 52 75 64 6F 6C 70 68 00",
+    "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 48 69 67 68 53 63 68 6F 6F 6C 00", "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 4F 72 69 67 69 6E 61 6C 00",
+    "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 53 6B 69 6E 42 6C 61 63 6B 00", "56 65 72 74 69 63 61 6C 53 70 69 6B 65 00",
+    "56 65 72 74 69 63 61 6C 53 70 69 6B 65 4A 65 6E 6E 79 00", "57 68 69 74 65 53 70 69 6B 65 00", "44 65 66 61 75 6C 74 00"
+}
 -- ==========================================
 -- KONFIGURASI TELEGRAM BOT
 -- GANTI TOKEN DENGAN TOKEN BARU dari @BotFather.
@@ -412,6 +531,7 @@ function loginSystem()
 
                 gg.alert("📄 information\n─────────────────\nLogin Berhasil ✅\nKey valid dan aktif.\n─────────────────")
                 USER_NAME = userName
+                loadFavorite() -- <--- TAMBAHIN INI
 
                 -- Kirim notifikasi hanya pada login pertama untuk username ini.
                 -- Marker disimpan lokal supaya menjalankan ulang script tidak mengirim ulang.
@@ -1265,104 +1385,133 @@ function menuPilihSkill(karakter)
     eksekusiEditSkill(karakter, selectedSkills)
 end
 
+function menuPilihSkill(karakter)
+    gg.setVisible(false)
+    
+    -- Langsung ambil semua skill dari karakter ini
+    local skillListMenu = {}
+    local skillNameList = {}
+    for skillName, _ in pairs(skillDatabase[karakter]) do
+        skillListMenu[#skillListMenu + 1] = skillName
+        skillNameList[#skillNameList + 1] = skillName
+    end
+
+    local choices = gg.multiChoice(skillListMenu, nil, "Pilih Skill ASAL " .. karakter .. " yang mau diedit")
+    
+    if not choices then 
+        return menuPilihKarakter() 
+    end
+
+    local selectedSkills = {}
+    for i = 1, #skillListMenu do
+        if choices[i] then
+            table.insert(selectedSkills, skillNameList[i])
+        end
+    end
+
+    if #selectedSkills == 0 then
+        gg.alert("Kamu tidak memilih skill apapun!")
+        return menuPilihSkill(karakter)
+    end
+
+    eksekusiEditSkill(karakter, selectedSkills)
+end
+
 function eksekusiEditSkill(karakter, selectedSkills)
     gg.setVisible(false)
     
     local foundSkills = {} 
     local allFound = true
 
-    gg.toast("Mencari semua skill yang dipilih...")
+    gg.toast("Mencari skill asal...")
     
-    -- TAHAP 1: CARI SEMUA SKILL DULU
+    -- TAHAP 1: CARI SKILL ASAL
     for i, namaSkill in ipairs(selectedSkills) do
         local skillData = skillDatabase[karakter][namaSkill]
-        
-        gg.clearResults()
-        gg.setRanges(MEMORY_RANGE)
-        
-        gg.searchNumber(skillData.searchHex, gg.TYPE_BYTE)
-        local res = gg.getResults(100000)
-        
-        if #res > 0 then
-            gg.refineNumber(skillData.refineHex, gg.TYPE_BYTE)
-            local targetRes = gg.getResults(100000)
+        if skillData then
+            gg.clearResults()
+            gg.setRanges(MEMORY_RANGE)
+            gg.searchNumber(skillData.searchHex, gg.TYPE_BYTE)
+            local res = gg.getResults(100000)
             
-            local finalAddress = 0
-            if #targetRes > 0 then
-                finalAddress = targetRes[1].address 
+            if #res > 0 then
+                gg.refineNumber(skillData.refineHex, gg.TYPE_BYTE)
+                local targetRes = gg.getResults(100000)
+                local finalAddress = 0
+                if #targetRes > 0 then
+                    finalAddress = targetRes[1].address 
+                else
+                    finalAddress = res[1].address + skillData.offsetStart
+                end
+                table.insert(foundSkills, { name = namaSkill, address = finalAddress })
+                gg.toast("Ketemu: " .. namaSkill)
             else
-                finalAddress = res[1].address + skillData.offsetStart
+                gg.alert("❌ Gagal: Kode Hex " .. namaSkill .. " tidak ditemukan!")
+                allFound = false
+                break
             end
-            
-            table.insert(foundSkills, {
-                name = namaSkill,
-                address = finalAddress
-            })
-            gg.toast("Ketemu: " .. namaSkill)
-        else
-            gg.alert("❌ Gagal: Kode Hex " .. namaSkill .. " tidak ditemukan di memory!")
-            allFound = false
-            break
         end
         gg.sleep(100)
     end
 
     if not allFound or #foundSkills == 0 then
-        gg.alert("Pencarian dibatalkan karena ada skill yang tidak ditemukan.")
+        gg.alert("Pencarian dibatalkan.")
         return menuPilihSkill(karakter)
     end
 
-    gg.toast("Semua skill ketemu! Lanjut ke menu edit...")
-    gg.sleep(500)
+    -- TAHAP 2: TANYA MAU LEWAT MANA
+    local pilihanMode = gg.choice({
+        "Edit via List Normal",
+        "Edit via List Favorit",
+        "Batal"
+    }, nil, "Skill ketemu!\nMau diubah lewat list mana?")
 
-    -- TAHAP 2: EDIT SATU PER SATU
-    local skillTargets = {
-        "RaulFirstImpact", "ThunderSpike_Skin Highschool", "WhiteSpike", "Always Parry",
-        "Always Noon", "Metal Blood", "Thunder Spike Original", "Thunder Spike_Skin Black",
-        "Vertical Spike", "Vertical Spike Jenny", "Beast Spike Raul", "Beast Spike Raul For Event AI",
-        "Blue Dragon", "Blue Dragon_Skin Dosa", "Blue Dragon_Skin Redhood", "Parry_Skin Homunculus",
-        "Parry_Skin Wedding", "Ryuhyun Redhood Furst Impact", "High Vertical Serve Toss Black Thunder",
-        "Isabel Homunculus Last Spike", "Sky Serve Lisia_Skin Rudolph", "Chapter 12 Beast Spike For Event AI",
-        "Chapter 11 Beast Spike For Event AI", "Calm Before The Storm", "Coward Jacob Horror",
-        "Blink Ball HighSchool", "Default"
-    }
+    if not pilihanMode or pilihanMode == 3 then return menuPilihSkill(karakter) end
 
-    local hexTargets = {
-        "52 61 75 6C 46 69 72 73 74 49 6D 70 61 63 74 00", "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 48 69 67 68 73 63 68 6F 6F 6C 00",
-        "57 68 69 74 65 53 70 69 6B 65 00", "50 61 72 72 79 5F 41 6C 77 61 79 73 50 61 72 72 79 00",
-        "41 6C 77 61 79 73 4E 6F 6F 6E 00", "4D 65 74 61 6C 42 6C 6F 6F 64 00",
-        "54 68 75 6E 64 65 72 53 70 69 6B 65 00", "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 53 6B 69 6E 42 6C 61 63 6B 00",
-        "44 65 65 70 53 70 69 6B 65 00", "44 65 65 70 53 70 69 6B 65 49 6E 73 74 65 61 64 46 65 69 6E 74 00",
-        "42 65 61 73 74 53 70 69 6B 65 00", "42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00",
-        "42 6C 75 65 44 72 61 67 6F 6E 00", "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 44 6F 73 61 00",
-        "42 6C 75 65 44 72 61 67 6F 6E 5F 53 6B 69 6E 52 65 64 48 6F 6F 64 00", "50 61 72 72 79 5F 53 6B 69 6E 48 6F 6D 75 6E 63 75 6C 75 73 00",
-        "50 61 72 72 79 5F 53 6B 69 6E 57 65 64 64 69 6E 67 00", "52 65 64 48 6F 6F 64 52 79 75 68 79 75 6E 46 69 72 73 74 49 6D 70 61 63 74 00",
-        "48 69 67 68 56 65 72 74 69 63 61 6C 53 65 72 76 65 54 6F 73 73 5F 42 6C 61 63 6B 54 68 75 6E 64 65 72 00", "49 73 61 62 65 6C 48 6F 6D 75 6E 63 75 6C 75 73 4C 61 73 74 53 70 69 6B 65 00",
-        "53 6B 79 53 65 72 76 65 5F 53 6B 69 6E 52 75 64 6F 6C 70 68 00", "43 68 61 70 74 65 72 31 32 42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00",
-        "43 68 61 70 74 65 72 31 31 42 65 61 73 74 53 70 69 6B 65 46 6F 72 41 49 00", "43 61 6C 6D 42 65 66 6F 72 65 54 68 65 53 74 6F 72 6D 00",
-        "43 6F 77 61 72 64 4A 61 63 6F 62 48 6F 72 72 6F 72 00", "42 6C 69 6E 6B 42 61 6C 6C 5F 54 68 75 6E 64 65 72 5F 48 69 67 68 73 63 68 6F 6F 6C 00",
-        "44 65 66 61 75 6C 74 00"
-    }
+    local targetList = {}
+    local hexList = {}
 
+    if pilihanMode == 1 then
+        targetList = allNormalSkills
+        hexList = allNormalHex
+    else
+        -- Mode Favorit
+        if #favoriteSkills == 0 then
+            gg.alert("❌ Daftar Favorit kosong!\nSilakan tambahkan dulu di menu Favorite.")
+            return menuPilihSkill(karakter)
+        end
+
+        for _, favName in ipairs(favoriteSkills) do
+            table.insert(targetList, favName)
+            local hexFound = nil
+            for idx, normalName in ipairs(allNormalSkills) do
+                if normalName == favName then
+                    hexFound = allNormalHex[idx]
+                    break
+                end
+            end
+            table.insert(hexList, hexFound or "44 65 66 61 75 6C 74 00")
+        end
+    end
+
+    -- TAHAP 3: EKSEKUSI EDIT
     for i, skillInfo in ipairs(foundSkills) do
-        local m = gg.choice(skillTargets, nil, "("..i.."/"..#foundSkills..") Ubah " .. skillInfo.name .. " Jadi:")
+        local m = gg.choice(targetList, nil, "("..i.."/"..#foundSkills..") Ubah " .. skillInfo.name .. " Jadi:")
         
         if m == nil then
             gg.alert("Edit dibatalkan.")
             return menuPilihSkill(karakter)
         end
 
-        local hexBaru = hexTargets[m]
-        local targetName = skillTargets[m]
+        local hexBaru = hexList[m]
+        local targetName = targetList[m]
 
-        -- Simpen history SEBELUM diedit
         local readList = {}
         for j = 0, 14 do
             readList[#readList + 1] = {address = skillInfo.address + j, flags = gg.TYPE_BYTE}
         end
         local originalBytes = gg.getValues(readList)
 
-        -- Masukin ke history
         table.insert(editHistory, {
             char = karakter,
             oldName = skillInfo.name,
@@ -1371,7 +1520,6 @@ function eksekusiEditSkill(karakter, selectedSkills)
             originalBytes = originalBytes
         })
 
-        -- Eksekusi edit
         local editList = {}
         local urutan = hexToDecimalTable(hexBaru)
         
@@ -1396,6 +1544,100 @@ function eksekusiEditSkill(karakter, selectedSkills)
     gg.alert("✅ Selesai memproses "..#foundSkills.." skill!")
     menuPilihSkill(karakter)
 end
+
+-- ==========================================
+-- SISTEM FAVORITE SKILL
+-- ==========================================
+function menuFavoriteSkill()
+    gg.setVisible(false)
+    
+    local allSkillsList = {
+        "AbsoluteBlock", "AbyssToss_SkinStarOfTheEncore", "AlwaysGotoBlock", "AlwaysNoon", "AlwaysParry",
+        "AssistModeBallPause", "AutoCorrectSpike", "BeastFang", "BeastSpike", "BeastSpikeForAI",
+        "BladeWind", "BlinkBallHighSchool", "BlinkBall_BlackThunder", "BlinkBall_Rainbow", "BlitzSpin",
+        "BlueDragon", "BlueDragon_SkinDosa", "BlueDragon_SkinRedhood", "BraveHeart", "BraveTiger",
+        "BraveTiger_SkinMaid", "BungeoPpang", "CalmBeforeTheStorm", "CancelBlockOnOut", "CannotSlide",
+        "CemeteryGates", "Charge", "Charge_Jenny", "Charge_Jenny_SkinShootingStar", "ChemicalHit",
+        "ChemicalHit_SkinAhyeonStein", "CoreHit", "CourtCompass", "CowardJacobHorror",
+        "CriticalToss_SkinWaterSplash", "CrownPass", "DarkCrow", "DeathFlower_SkinMidnight",
+        "DeepSpike", "DeepSpikeInsteadFeint", "Determination", "Determination_Training",
+        "DirectSpiker", "DirectToss", "DoubleSpike", "DoubleSpike_SkinBlack", "DreamEater",
+        "EasyAttackForBeginnerToss", "EveryActionSpike", "ExcellentConcentration", "FarPassFeint",
+        "FastBlockCharge", "FastNoon", "FeintNearTheNet", "FeintWhenNotToss", "FeintWhenOpponentHPLow",
+        "FeintWhenWinning", "Flare", "Flare_SkinSummerTraining", "FlowerReceive", "FlyingGuard",
+        "FocusOnQuickWhenWinning", "ForceSpikeAimCenter", "FortuneTurn", "Frantic", "GearUp",
+        "GearUp_SkinHomunculus", "GetWeaker", "GitaeFirstBlock", "Gitae_AI", "GladiusWall",
+        "GladiusWall_SkinBountyHunter", "GuardStrike", "Gust", "HeadToHead", "HealingToss",
+        "HealingToss_SkinSummerTraining", "Helios", "Helios_SkinSummerTraining", "HiddenBrilliance",
+        "HighThirdReceive", "HighVerticalServeToss", "HighVerticalServeToss_BlackThunder",
+        "Highlight", "HundredForgedSteel", "HybridFloaterServe", "HybridFloaterServe_SkinStarOfTheEncore",
+        "Icarus", "Icarus_SkinShootingStar", "Icarus_SkinStrawHat", "ImperialOrder", "Intimidation",
+        "Intimidation_2", "IronClaw", "IronHalberd", "IsabelHomunculusLastSpike", "KindDictator",
+        "LightOfHope", "LightStepMB", "Lock", "LongSpike", "LongSpikeToBlockOut", "LongSpikeToLine",
+        "LongWaitSpike", "LucasServeToss", "LunarFlask", "Meow", "MetalBlood", "MiddleVerticalServeToss",
+        "MiraculousToss", "Noon", "Noon_Des", "Noon_SunSetDes", "OasisServeToss", "OffensiveDirectToss",
+        "OnepointPlayer", "OutOfBoundsSpike", "OutOfShape", "Overdrive", "Overdrive_SkinGodFather",
+        "Parry_SkinHomunculus", "Parry_SkinWedding", "RaulFirstImpact", "RedHoodRyuhyunFirstImpact",
+        "RyuhyunRedhoodFurstImpact", "SkyServeLisia_SkinRudolph", "ThunderSpike_HighSchool",
+        "ThunderSpike_Original", "ThunderSpike_SkinBlack", "VerticalSpike", "VerticalSpikeJenny",
+        "WhiteSpike", "Default"
+    }
+
+    local m = gg.choice({
+        "Tambah Skill ke Favorit",
+        "⭐ Lihat Daftar Favorit",
+        "Hapus Semua Favorit",
+        "Kembali"
+    }, nil, "⭐ FAVORITE MENU")
+
+    if not m or m == 4 then return menuUtama() end
+
+    if m == 1 then
+        local pick = gg.multiChoice(allSkillsList, nil, "Pilih Skill yang mau dijadikan Favorit:")
+        if not pick then return menuFavoriteSkill() end
+
+        local added = 0
+        for i = 1, #allSkillsList do
+            if pick[i] then
+                local isDuplicate = false
+                for _, fav in ipairs(favoriteSkills) do
+                    if fav == allSkillsList[i] then
+                        isDuplicate = true
+                        break
+                    end
+                end
+                
+                if not isDuplicate then
+                    table.insert(favoriteSkills, allSkillsList[i])
+                    added = added + 1
+                end
+            end
+        end
+        
+        saveFavorite() -- SIMPEN KE FILE
+        gg.alert("✅ Berhasil menambahkan "..added.." skill ke Favorit!")
+        
+    elseif m == 2 then
+        if #favoriteSkills == 0 then
+            gg.alert("❌ Daftar Favorit kamu masih kosong.")
+        else
+            local textFav = "⭐ DAFTAR FAVORIT KAMU:\n─────────────────\n"
+            for i, skillName in ipairs(favoriteSkills) do
+                textFav = textFav .. i .. ". " .. skillName .. "\n"
+            end
+            textFav = textFav .. "─────────────────\nTotal: " .. #favoriteSkills .. " skill"
+            gg.alert(textFav)
+        end
+        
+    elseif m == 3 then
+        favoriteSkills = {}
+        saveFavorite() -- HAPUS DI FILE JUGA
+        gg.alert("✅ Semua daftar favorit berhasil dihapus!")
+    end
+    
+    menuFavoriteSkill()
+end
+
 -- ==========================================
 -- SISTEM BACKUP & RESTORE SKILL (UPDATED)
 -- ==========================================
@@ -2125,6 +2367,7 @@ function menuUtama()
         "Character Menu",
         "Mastery Menu",
         "Config Skill All Character",
+        "⭐ Favorite Skill", -- Menu Baru
         "Gameplay Menu",
         "Show FPS Mode",
         "Menu UID",
@@ -2139,14 +2382,17 @@ function menuUtama()
     elseif menu == 3 then
         menuPilihKarakter()
     elseif menu == 4 then
-        gameplayMenu()
+        menuFavoriteSkill() -- Panggil fungsi favorite
     elseif menu == 5 then
-        showFpsMode()
+        gameplayMenu()
     elseif menu == 6 then
-        menuUID()
+        showFpsMode()
     elseif menu == 7 then
-        pilihMemory()
+        menuUID()
     elseif menu == 8 then
+        pilihMemory()
+    elseif menu == 9 then
+        gg.clearResults()
         goodbye()
     end
 end
