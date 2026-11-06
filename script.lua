@@ -1760,8 +1760,8 @@ function menuEditCharacter()
         -- Edit Stats (OFFSET BARU)
         if newAttack then
             editList[#editList + 1] = {address = addr + 0x50, flags = gg.TYPE_DOUBLE, value = newAttack}
-            editList[#editList + 1] = {address = addr - 0xC0, flags = gg.TYPE_DOUBLE, value = newDefense}
-            editList[#editList + 1] = {address = addr - 0xD0, flags = gg.TYPE_DOUBLE, value = newSpeed}
+            editList[#editList + 1] = {address = addr - 0xD0, flags = gg.TYPE_DOUBLE, value = newDefense}
+            editList[#editList + 1] = {address = addr - 0xE0, flags = gg.TYPE_DOUBLE, value = newSpeed}
             editList[#editList + 1] = {address = addr - 0x50, flags = gg.TYPE_DOUBLE, value = newJump}
             editList[#editList + 1] = {address = addr - 0x10, flags = gg.TYPE_DOUBLE, value = newAsc}
         end
@@ -2072,8 +2072,8 @@ function quickScanChar(targetPosName)
     end
     if newAttack then
         editList[#editList + 1] = {address = targetAddr + 0x50, flags = gg.TYPE_DOUBLE, value = newAttack}
-        editList[#editList + 1] = {address = targetAddr - 0xC0, flags = gg.TYPE_DOUBLE, value = newDefense}
-        editList[#editList + 1] = {address = targetAddr - 0xD0, flags = gg.TYPE_DOUBLE, value = newSpeed}
+        editList[#editList + 1] = {address = targetAddr - 0xD0, flags = gg.TYPE_DOUBLE, value = newDefense}
+        editList[#editList + 1] = {address = targetAddr - 0xE0, flags = gg.TYPE_DOUBLE, value = newSpeed}
         editList[#editList + 1] = {address = targetAddr - 0x50, flags = gg.TYPE_DOUBLE, value = newJump}
         editList[#editList + 1] = {address = targetAddr - 0x10, flags = gg.TYPE_DOUBLE, value = newAsc}
     end
