@@ -11,7 +11,11 @@ local nameFile = "/sdcard/Notes/Hanzz_User.txt"
 local keyFile = "/sdcard/Notes/Hanzz_Key.txt"
 local RAW_PASTEBIN_URL = "https://pastebin.com/raw/REnycS4A"
 
--- Konfigurasi file favorit
+-- Pindahin deklarasi variabel global ke ATAS biar ga nil
+local backupSkills = {}
+local editHistory = {}
+local favoriteSkills = {}
+
 local favFile = "/sdcard/Notes/Hanzz_Favorite.txt"
 
 -- Fungsi muat favorit dari file
@@ -31,19 +35,18 @@ end
 
 -- Fungsi simpan favorit ke file
 local function saveFavorite()
+    -- HAPUS os.execute("mkdir -p ...") KARENA DI-BLOCK GG
     local file = io.open(favFile, "w")
     if file then
         for _, skill in ipairs(favoriteSkills) do
             file:write(skill .. "\n")
         end
         file:close()
+    else
+        gg.toast("❌ Gagal nyimpen file favorit! Pastikan folder /sdcard/Notes/ ada.")
     end
 end
 
--- Variabel Global buat nyimpen backup
-local backupSkills = {}
-local editHistory = {} -- BARU: Buat nyatet history
-local favoriteSkills = {} -- Buat nyimpen list favorit
 -- ==========================================
 -- DATABASE LIST SKILL (GLOBAL)
 -- ==========================================
@@ -557,6 +560,7 @@ function loginSystem()
                 bypass()
                 bypass2()
                 autoWin()
+                unlimitedSkillSangHyeon()
                 welcome()
             end
         else
@@ -835,7 +839,7 @@ function fastWin()
         local listRevert = {}
         for _, addr in ipairs(fastWinAddresses) do
             if addr and addr ~= 0 then
-                listRevert[#listRevert + 1] = {address=addr, flags=gg.TYPE_DOUBLE, value=1573.12}
+                listRevert[#listRevert + 1] = {address=addr, flags=gg.TYPE_DOUBLE, value=1573,12}
             end
         end
         
@@ -875,7 +879,7 @@ function fastWin()
             listEdit[#listEdit + 1] = {
                 address = v.address,
                 flags = gg.TYPE_DOUBLE,
-                value = 1500
+                value = 10
             }
         end
     end
@@ -1044,6 +1048,22 @@ function menuUID()
   end
 end
 
+function menuSkill()
+    gg.clearResults()
+    gg.setVisible(false)
+
+    local menu = gg.choice({
+	    "Sanghyeon",
+    	"Return"
+    }, nil, "Unlimited Skill Menu - Hanzz_TSC")
+    
+    if menu == 1 then
+        unlimitedSkillSangHyeon()
+    elseif menu == 2 then
+        gameplayMenu()
+    end
+end
+
 -- MENU GAMEPLAY BARU
 function gameplayMenu()
     gg.setVisible(false)
@@ -1060,6 +1080,7 @@ function gameplayMenu()
         "Edit Score",
         "Speed Hack",
         "Backup/Restore Skill", -- MENU BARU
+        "Unlimited Skill Character",
         "Kembali"
     }, nil, "Gameplay Menu - Hanzz_TSC")
 
@@ -1068,7 +1089,8 @@ function gameplayMenu()
     elseif menu == 3 then EditScoreMenu()
     elseif menu == 4 then speedHack()
     elseif menu == 5 then menuBackupSkill()
-    elseif menu == 6 then menuUtama()
+    elseif menu == 6 then menuSkill()
+    elseif menu == 7 then menuUtama()
     else return end
 end
 
@@ -1584,9 +1606,9 @@ function menuFavoriteSkill()
     }
 
     local m = gg.choice({
-        "Tambah Skill ke Favorit",
+        "📍Tambah Skill ke Favorit",
         "⭐ Lihat Daftar Favorit",
-        "Hapus Semua Favorit",
+        "🗑️Hapus Semua Favorit",
         "Kembali"
     }, nil, "⭐ FAVORITE MENU")
 
@@ -1614,8 +1636,13 @@ function menuFavoriteSkill()
             end
         end
         
-        saveFavorite() -- SIMPEN KE FILE
-        gg.alert("✅ Berhasil menambahkan "..added.." skill ke Favorit!")
+        if added > 0 then
+            saveFavorite() -- Simpan ke file
+            loadFavorite() -- Baca ulang biar memori sinkron sama file
+            gg.alert("✅ Berhasil menambahkan "..added.." skill ke Favorit!")
+        else
+            gg.alert("⚠️ Skill yang dipilih sudah ada semua di Favorit!")
+        end
         
     elseif m == 2 then
         if #favoriteSkills == 0 then
@@ -1631,7 +1658,8 @@ function menuFavoriteSkill()
         
     elseif m == 3 then
         favoriteSkills = {}
-        saveFavorite() -- HAPUS DI FILE JUGA
+        saveFavorite() 
+        loadFavorite() -- Reset memori
         gg.alert("✅ Semua daftar favorit berhasil dihapus!")
     end
     
@@ -1645,9 +1673,9 @@ function menuBackupSkill()
     gg.setVisible(false)
     
     local menu = gg.choice({
-        "Restore Skill Tertentu",
-        "Restore Semua ke Asli",
-        "Bersihkan Riwayat Edit",
+        "🛠️Restore Skill Tertentu",
+        "🛠️Restore Semua ke Asli",
+        "🗑️Bersihkan Riwayat Edit",
         "Kembali"
     }, nil, "RESTORE MENU")
     
@@ -1805,6 +1833,236 @@ function speedHack()
         gg.alert("✅ Speed Hack Berhasil Diaktifkan!")
     else
         gg.alert("❌ Gagal mengedit nilai Speed Hack!")
+    end
+end
+
+-- ==========================================
+-- VOLLEYBALL SKIN & BACKGROUND MENU (KATEGORI)
+-- Search base: 91 -> -0x10 -> refine 115
+-- Offset bola: -0x610 (hex -610), BG: -0x230 (hex -230)
+-- ==========================================
+local savedBallAddress = nil
+local savedBgAddress = nil
+
+local function searchSkinBase()
+    gg.clearResults()
+    local range = (MEMORY_RANGE or gg.REGION_C_ALLOC) | gg.REGION_ANONYMOUS
+    gg.setRanges(range)
+    gg.toast("Mencari base address...")
+    gg.searchNumber("91", gg.TYPE_DOUBLE)
+    local count = gg.getResultCount()
+    if count == 0 then
+        gg.clearResults()
+        return nil
+    end
+
+    local raw = gg.getResults(count)
+    local shifted = {}
+    for i, r in ipairs(raw) do
+        shifted[i] = { address = r.address - 0x10, flags = gg.TYPE_DOUBLE }
+    end
+
+    gg.loadResults(shifted)
+    gg.refineNumber("115", gg.TYPE_DOUBLE)
+    local refinedCount = gg.getResultCount()
+    if refinedCount == 0 then
+        gg.clearResults()
+        return nil
+    end
+
+    local refined = gg.getResults(refinedCount)
+    local base = refined[refinedCount].address
+    gg.clearResults()
+    return base
+end
+
+local function applySkinValue(offsetHex, value, category)
+    local target = (category == "ball") and savedBallAddress or savedBgAddress
+    if target == nil then
+        local base = searchSkinBase()
+        if base == nil then return false end
+        local off = tonumber(offsetHex, 16)
+        if not off then return false end
+        target = base + off
+        if category == "ball" then savedBallAddress = target
+        else savedBgAddress = target end
+    end
+
+    local ok = pcall(function()
+        gg.setValues({{ address = target, flags = gg.TYPE_DOUBLE, value = value, freeze = true }})
+        gg.addListItems({{ address = target, flags = gg.TYPE_DOUBLE, value = value, freeze = true }})
+    end)
+    return ok
+end
+
+-- Bola dikelompokin per tema: {nama, id}
+local BALL_THEMES = {
+    { name = "Basic", items = {
+        {"Beach Ball", 0}, {"Watermelon Beach Ball", 1}, {"Full Moon", 3}, {"High Noon", 4}
+    }},
+    { name = "Event", items = {
+        {"Piggy Bank Ball", 5}, {"Crimson Valentia Ball", 6}, {"Trick Ball", 7},
+        {"Pinata Ball", 8}, {"Bouquet Volleyball", 9}, {"Rise Volleyball", 10},
+        {"Master Ball", 13}, {"2026 Lucky Pouch Ball", 26}, {"8th Anniversary Commemorative Ball", 30}
+    }},
+    { name = "Seasonal", items = {
+        {"Christmas Ball", 11}, {"Winter Snow Ball", 12}, {"Star Snow Ball", 23},
+        {"Jingle Bell Ball", 22}, {"Jack o lantern Ball", 19}, {"Mother of pearl Ball", 25}
+    }},
+    { name = "Prestige", items = {
+        {"Nishikawa Ball", 2}, {"Ball Nishikawa Black", 24}, {"Seonrim High School Ball", 14},
+        {"Seaweed Ball", 15}, {"Silver Balloon Ball", 16}, {"Blue Balloon Ball", 17},
+        {"Black Spider Ball", 18}, {"Ball Neon", 20}, {"Ball Venom", 21},
+        {"Graffiti King", 27}, {"Wind Spiral Ball", 28}, {"Prism Rainbow Ball", 29},
+        {"Mystic Aurora Ball", 31}, {"Tumbleweed Ball", 32}, {"Cactus Ball", 33}
+    }}
+}
+
+local BG_TYPES = {
+    { name = "Tournament", items = {
+        {"Regional Tournament Arena", 0}, {"National Tournament Arena", 2},
+        {"Superstar Challenge", 6}, {"Volleyball Colosseum", 9},
+        {"Valentia Spikes Court", 7}, {"Valentia Spikes Court 2", 8},
+        {"Azure Dragon Festival", 15}
+    }},
+    { name = "School", items = {
+        {"School Gym", 3}, {"Seonrim High", 10}, {"School Garden", 21}, {"Chromakey", 18}
+    }},
+    { name = "Seasonal", items = {
+        {"Summer Splash", 4}, {"Rockwell Winter Camp", 11}, {"Rockwell Winter Camp Gym", 12}
+    }},
+    { name = "Special", items = {
+        {"Unknown Arena 1", 1}, {"Unknown Arena 2", 5}, {"Dark City", 13},
+        {"Phantom League", 14}, {"Phantom League (Old)", 16}, {"Nightmare Arena", 17},
+        {"Phantom League Performance Hall", 19}, {"Outlaw Frontier", 20}
+    }}
+}
+
+local function pickFromTheme(themes, title, offsetHex, category, label)
+    -- level 1: pilih tema
+    local themeMenu = {}
+    for i, t in ipairs(themes) do themeMenu[i] = "    ▸  " .. t.name end
+    themeMenu[#themeMenu + 1] = "    ▸  Kembali"
+    local tChoice = gg.choice(themeMenu, nil, title .. " — Pilih Kategori")
+    if not tChoice or tChoice == #themeMenu then return false end
+
+    -- level 2: pilih item dalam tema
+    local theme = themes[tChoice]
+    local itemMenu = {}
+    for i, it in ipairs(theme.items) do itemMenu[i] = "    ▸  " .. it[1] end
+    itemMenu[#itemMenu + 1] = "    ▸  Kembali"
+    local iChoice = gg.choice(itemMenu, nil, title .. " › " .. theme.name)
+    if not iChoice or iChoice == #itemMenu then return false end
+
+    local picked = theme.items[iChoice]
+    local ok = applySkinValue(offsetHex, picked[2], category)
+    if not ok then
+        gg.alert("📄 not found ❌\n─────────────────\nGagal menerapkan " .. label .. "!\nBase address tidak ditemukan.\n─────────────────")
+        return false
+    end
+    gg.alert("📄 success/done ✅\n─────────────────\n" .. label .. " berhasil diubah jadi:\n" .. picked[1] .. "\n─────────────────")
+    return true
+end
+
+function menuVolleyballSkin()
+    gg.setVisible(false)
+    while true do
+        local ok = pickFromTheme(BALL_THEMES, "🏐 VOLLEYBALL SKIN", "-610", "ball", "Volleyball Skin")
+        if not ok then return end
+    end
+end
+
+function menuBackgroundSkin()
+    gg.setVisible(false)
+    while true do
+        local ok = pickFromTheme(BG_TYPES, "🖼️ BACKGROUND IN GAME", "-230", "bg", "Background")
+        if not ok then return end
+    end
+end
+
+-- ==========================================
+-- UNLIMITED SKILL (SANGHYEON) - REVISI
+-- ==========================================
+function unlimitedSkillSangHyeon()
+    gg.setVisible(false)
+    gg.clearResults()
+
+    -- 1. Cari nilai 2100 (Double) sesuai logika asli temen lu
+    gg.toast("Mencari Unlimited Skill...")
+    gg.searchNumber("2100", gg.TYPE_DOUBLE)
+    local first = gg.getResults(100000)
+    
+    if #first == 0 then
+        gg.alert("❌ Gagal: Nilai 2100 tidak ditemukan! Pastikan karakter Sanghyeon sedang aktif/ada di tim.")
+        return false
+    end
+
+    -- 2. Geser ke -0x10 lalu refine 300
+    local shifted = {}
+    for _, item in ipairs(first) do
+        shifted[#shifted + 1] = {address = item.address - 0x10, flags = gg.TYPE_DOUBLE}
+    end
+    gg.clearResults()
+    gg.loadResults(shifted)
+    gg.refineNumber("300", gg.TYPE_DOUBLE)
+    
+    local anchors = gg.getResults(100000)
+    if #anchors == 0 then
+        gg.alert("❌ Gagal: Refine 300 tidak ditemukan!")
+        return false
+    end
+
+    -- 3. Eksekusi edit
+    -- Karena script lo udah dapet "anchor" (alamat pasti), kita tinggal ubah 4 nilai statenya
+    local expected = {300, 2100, 1800, 360}
+    local edits = {}
+    
+    -- Kita pakai anchor pertama yang ketemu (biasanya cukup, karena 1 karakter = 1 blok memory)
+    local anchorAddress = anchors[1].address
+    
+    -- Offset stat berdasarkan pola {300, 2100, 1800, 360}
+    -- 300 ada di anchor, 2100 di +0x10, 1800 di +0x20, 360 di +0x30
+    -- (Ini asumsi layout memori stat Sanghyeon, kalau meleset tinggal sesuaikan offset-nya)
+    
+    -- Kita baca dulu 4 nilai ini buat mastiin itu beneran stat Sanghyeon
+    local checkVals = gg.getValues({
+        {address = anchorAddress, flags = gg.TYPE_DOUBLE},
+        {address = anchorAddress + 0x10, flags = gg.TYPE_DOUBLE},
+        {address = anchorAddress + 0x20, flags = gg.TYPE_DOUBLE},
+        {address = anchorAddress + 0x30, flags = gg.TYPE_DOUBLE}
+    })
+
+    local match = true
+    for i = 1, 4 do
+        local val = tonumber(checkVals[i] and checkVals[i].value)
+        if val == nil or math.abs(val - expected[i]) > 0.0001 then
+            match = false
+            break
+        end
+    end
+
+    if not match then
+        gg.alert("❌ Gagal: Struktur stat Sanghyeon tidak cocok dengan memori. Pastikan lu lagi buka detail karakternya atau coba relog.")
+        return false
+    end
+
+    -- Tembak jadi 9999999999
+    edits = {
+        {address = anchorAddress, flags = gg.TYPE_DOUBLE, value = 9999999999},
+        {address = anchorAddress + 0x10, flags = gg.TYPE_DOUBLE, value = 9999999999},
+        {address = anchorAddress + 0x20, flags = gg.TYPE_DOUBLE, value = 9999999999},
+        {address = anchorAddress + 0x30, flags = gg.TYPE_DOUBLE, value = 9999999999}
+    }
+
+    local ok = pcall(function() gg.setValues(edits) end)
+    gg.clearResults()
+
+    if ok then
+        gg.alert("📄 Success/done ✅\n─────────────────\nUnlimited Skill Sanghyeon Aktif!\n─────────────────")
+        return true
+    else
+        gg.alert("❌ Gagal mengedit memory!")
+        return false
     end
 end
 
@@ -2096,7 +2354,7 @@ function prosesMastery(namaMasteryAwal)
 
     -- 4. Offset +0x20 -> Cari ID Mastery Lagi
     local off2 = {}
-    for _, v in ipairs(resMastery) do off2[#off2+1] = {address = v.address - 0x50, flags = gg.TYPE_DOUBLE} end
+    for _, v in ipairs(resMastery) do off2[#off2+1] = {address = v.address - 0x40, flags = gg.TYPE_DOUBLE} end
     gg.loadResults(off2)
 
     gg.searchNumber(namaMasteryAwal, gg.TYPE_DOUBLE)
@@ -2332,16 +2590,103 @@ function quickScanChar(targetPosName)
     charMenu()
 end
 
+-- ==========================================
+-- EDIT CHARACTER V2 (SCAN BERDASARKAN NAMA HEX)
+-- ==========================================
+function menuEditCharV2()
+    gg.setVisible(false)
+    
+    -- Tanya mau edit karakter siapa
+    local charV2Menu = gg.choice({
+        "Isabel",
+        "Nishikawa Highschool",
+        "Kembali"
+    }, nil, "👑 Edit Character V2\nPilih Nama Karakter (Asal):")
+    
+    if not charV2Menu or charV2Menu == 3 then return menuUtama() end
+    
+    local searchHex = ""
+    local namaKarakter = ""
+    
+    if charV2Menu == 1 then
+        searchHex = "h49 73 61 62 65 6C 00 22"
+        namaKarakter = "Isabel"
+    elseif charV2Menu == 2 then
+        searchHex = "h4E 69 73 68 69 6B 61 77 61 5F 53 6B 69 6E 48 69 67 68 73 73 63 68 6F 6F 6C 00 00"
+        namaKarakter = "Nishikawa Highschool"
+    end
+    
+    gg.clearResults()
+    gg.setRanges(MEMORY_RANGE)
+    gg.toast("Mencari " .. namaKarakter .. "...")
+    
+    -- Cari Hex nama karakter
+    gg.searchNumber(searchHex, gg.TYPE_BYTE)
+    local res = gg.getResults(100000)
+    
+    if #res == 0 then
+        gg.alert("❌ Gagal: Nama " .. namaKarakter .. " tidak ditemukan di memory!")
+        return menuEditCharV2()
+    end
+    
+    local foundAddress = res[1].address
+    gg.clearResults()
+    gg.toast("Ketemu: " .. namaKarakter)
+    gg.sleep(500)
+    
+    -- Tanya mau ubah jadi apa (List Normal / Favorit)
+    local pilihanMode = gg.choice({
+        "Ubah jadi Nishikawa Highschool",
+        "Batal"
+    }, nil, "Karakter Ditemukan!\nMau ubah jadi apa?")
+    
+    if not pilihanMode or pilihanMode == 2 then return menuUtama() end
+    
+    local hexBaru = ""
+    local targetName = ""
+    
+    if pilihanMode == 1 then
+        -- Target Nishikawa Highschool
+        hexBaru = "4E 69 73 68 69 6B 61 77 61 5F 53 6B 69 6E 48 69 67 68 73 63 68 6F 6F 6C 00"
+        targetName = "Nishikawa Highschool"
+    end
+    
+    -- Eksekusi edit (timpa teks nama lama dengan nama baru)
+    local editList = {}
+    local urutan = hexToDecimalTable(hexBaru)
+    
+    -- Karena string target lebih panjang (26 byte vs 8 byte Isabel), ini akan menimpa teks setelahnya.
+    -- Pastikan alamat memory-nya cukup panjang biar ga crash.
+    for i = 1, #urutan do
+        editList[#editList + 1] = {
+            address = foundAddress + (i - 1),
+            flags = gg.TYPE_BYTE,
+            value = urutan[i]
+        }
+    end
+    
+    local ok = pcall(function() gg.setValues(editList) end)
+    gg.clearResults()
+    
+    if ok then
+        gg.alert("✅ Berhasil Mengubah Karakter\n" .. namaKarakter .. " -> " .. targetName)
+    else
+        gg.alert("❌ Gagal mengedit memory!")
+    end
+    
+    menuEditCharV2()
+end
+
 --Pilihan char menu
 function charMenu()
     gg.setVisible(false)
     local menuTitle = "CHARACTER MENU [" .. tostring(USER_NAME) .. "] - " .. tostring(MEMORY_NAME)
     
     local menu = gg.choice ({
-    	"Siwoo",
-        "Ohjun",
-        "Jaejo",
-        "Scan Character",
+    	"⭐Siwoo",
+        "⭐Ohjun",
+        "⭐Jaejo",
+        "👑Scan Character🔍",
         "Kembali"
     }, nil, menuTitle)
     
@@ -2364,34 +2709,45 @@ function menuUtama()
     local menuTitle = "Hanzz_TSC [" .. tostring(USER_NAME) .. "] - " .. tostring(MEMORY_NAME)
 
     local menu = gg.choice({
-        "Character Menu",
-        "Mastery Menu",
-        "Config Skill All Character",
-        "⭐ Favorite Skill", -- Menu Baru
-        "Gameplay Menu",
-        "Show FPS Mode",
-        "Menu UID",
-        "Setup Memory",
-        "Exit"
+        "    ▸      👤Character Menu",
+        "    ▸      👑Edit Character V2", -- MENU BARU
+        "    ▸      ⚔️Mastery Menu",
+        "    ▸      📝Config Skill All Character",
+        "    ▸      ⭐ Favorite Skill",
+        "    ▸      🏐 Volleyball Skin",
+        "    ▸      🖼️ Background Skin",
+        "    ▸      🎮Gameplay Menu",
+        "    ▸      🛠️Game Maker Tools",
+        "    ▸      🌐Menu UID",
+        "    ▸      ⚙️Setup Memory",
+        "    ▸      Exit"
     }, nil, menuTitle)
 
-    if menu == 1 then
+    if menu == nil then
+        return
+    elseif menu == 1 then
         charMenu()
     elseif menu == 2 then
-        masteryMenu()
+        menuEditCharV2() -- PANGGIL FUNGSI BARU
     elseif menu == 3 then
-        menuPilihKarakter()
+        masteryMenu()
     elseif menu == 4 then
-        menuFavoriteSkill() -- Panggil fungsi favorite
+        menuPilihKarakter()
     elseif menu == 5 then
-        gameplayMenu()
+        menuFavoriteSkill()
     elseif menu == 6 then
-        showFpsMode()
+        menuVolleyballSkin()
     elseif menu == 7 then
-        menuUID()
+        menuBackgroundSkin()
     elseif menu == 8 then
-        pilihMemory()
+        gameplayMenu()
     elseif menu == 9 then
+        showFpsMode()
+    elseif menu == 10 then
+        menuUID()
+    elseif menu == 11 then
+        pilihMemory()
+    elseif menu == 12 then
         gg.clearResults()
         goodbye()
     end
