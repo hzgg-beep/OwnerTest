@@ -7,8 +7,8 @@ USER_NAME = nil
 -- ==========================================
 -- KONFIGURASI FILE & URL PASTEBIN
 -- ==========================================
-local nameFile = "/sdcard/Notes/Hanzz_User.txt"
-local keyFile = "/sdcard/Notes/Hanzz_Key.txt"
+local nameFile = "/sdcard/Hanzz_User.txt"
+local keyFile = "/sdcard/Hanzz_Key.txt"
 local RAW_PASTEBIN_URL = "https://pastebin.com/raw/REnycS4A"
 
 -- Pindahin deklarasi variabel global ke ATAS biar ga nil
@@ -634,7 +634,7 @@ end
 function autoWin()
     gg.setRanges(gg.REGION_CODE_APP)
     gg.clearResults()
-    gg.searchNumber("hA0 1E 00 36", gg.TYPE_BYTE)
+    gg.searchNumber("hE0 03 15 AA 01 1C 0C 94 A0 1E 00 36", gg.TYPE_BYTE)
     gg.refineNumber("54", gg.TYPE_BYTE)
 
     local r = gg.getResults(1)
@@ -803,7 +803,7 @@ function bypass2()
     gg.clearResults()
 
     -- 1. Cari nilai awal
-    gg.searchNumber("h38 4A CE 94 47 5B CE 94 FF 83 04 D1 E8 5B 00 FD FD 7B 0C A9 FC 6F 0D A9 FA 67 0E A9", gg.TYPE_BYTE)
+    gg.searchNumber("hAE 3A E1 94 AD 4B E1 94 FF 83 04 D1 E8 5B 00 FD FD 7B 0C A9 FC 6F 0D A9 FA 67 0E A9", gg.TYPE_BYTE)
     
     -- 2. Refine
     gg.refineNumber("hFF 83 04 D1 E8 5B 00 FD FD 7B 0C A9 FC 6F 0D A9 FA 67 0E A9", gg.TYPE_BYTE)
@@ -860,7 +860,7 @@ function fastWin()
 
     gg.clearResults()
     gg.toast("Search Fast Win...")
-    gg.searchNumber("1573,12", gg.TYPE_DOUBLE)
+    gg.searchNumber("1.573,12", gg.TYPE_DOUBLE)
     local hasil1573 = gg.getResults(100000)
 
     if #hasil1573 == 0 then
@@ -1981,81 +1981,96 @@ function menuBackgroundSkin()
 end
 
 -- ==========================================
--- UNLIMITED SKILL (SANGHYEON) - REVISI
+-- UNLIMITED SKILL (SANGHYEON) - DUAL MEMORY (Ca + Other)
 -- ==========================================
 function unlimitedSkillSangHyeon()
     gg.setVisible(false)
     gg.clearResults()
+    gg.toast("Mencari Unlimited Skill Sanghyeon (Ca + Other)...")
 
-    -- 1. Cari nilai 2100 (Double) sesuai logika asli temen lu
-    gg.toast("Mencari Unlimited Skill...")
-    gg.searchNumber("2100", gg.TYPE_DOUBLE)
-    local first = gg.getResults(100000)
-    
-    if #first == 0 then
-        gg.alert("❌ Gagal: Nilai 2100 tidak ditemukan! Pastikan karakter Sanghyeon sedang aktif/ada di tim.")
+    -- Set Memory ke Ca + Other secara eksklusif buat fungsi ini
+    gg.setRanges(gg.REGION_C_ALLOC | gg.REGION_OTHER)
+
+    -- 1. Cari nilai 300 (Double)
+    gg.searchNumber("300", gg.TYPE_DOUBLE)
+    local res1 = gg.getResults(100000)
+    if #res1 == 0 then
+        gg.alert("❌ Gagal: Nilai 300 tidak ditemukan di memory Ca maupun Other!\nPastikan Sanghyeon ada di tim.")
         return false
     end
 
-    -- 2. Geser ke -0x10 lalu refine 300
-    local shifted = {}
-    for _, item in ipairs(first) do
-        shifted[#shifted + 1] = {address = item.address - 0x10, flags = gg.TYPE_DOUBLE}
-    end
+    -- 2. Offset +0x10, cari 2100
+    local off1 = {}
+    for _, v in ipairs(res1) do off1[#off1 + 1] = {address = v.address + 0x10, flags = gg.TYPE_DOUBLE} end
     gg.clearResults()
-    gg.loadResults(shifted)
-    gg.refineNumber("300", gg.TYPE_DOUBLE)
-    
-    local anchors = gg.getResults(100000)
-    if #anchors == 0 then
-        gg.alert("❌ Gagal: Refine 300 tidak ditemukan!")
+    gg.loadResults(off1)
+    gg.searchNumber("2100", gg.TYPE_DOUBLE)
+    local res2 = gg.getResults(100000)
+    if #res2 == 0 then
+        gg.alert("❌ Gagal: 2100 tidak ditemukan di offset +10!")
         return false
     end
 
-    -- 3. Eksekusi edit
-    -- Karena script lo udah dapet "anchor" (alamat pasti), kita tinggal ubah 4 nilai statenya
-    local expected = {300, 2100, 1800, 360}
-    local edits = {}
-    
-    -- Kita pakai anchor pertama yang ketemu (biasanya cukup, karena 1 karakter = 1 blok memory)
-    local anchorAddress = anchors[1].address
-    
-    -- Offset stat berdasarkan pola {300, 2100, 1800, 360}
-    -- 300 ada di anchor, 2100 di +0x10, 1800 di +0x20, 360 di +0x30
-    -- (Ini asumsi layout memori stat Sanghyeon, kalau meleset tinggal sesuaikan offset-nya)
-    
-    -- Kita baca dulu 4 nilai ini buat mastiin itu beneran stat Sanghyeon
-    local checkVals = gg.getValues({
-        {address = anchorAddress, flags = gg.TYPE_DOUBLE},
-        {address = anchorAddress + 0x10, flags = gg.TYPE_DOUBLE},
-        {address = anchorAddress + 0x20, flags = gg.TYPE_DOUBLE},
-        {address = anchorAddress + 0x30, flags = gg.TYPE_DOUBLE}
-    })
+    -- 3. Offset +0x10, cari 1800
+    local off2 = {}
+    for _, v in ipairs(res2) do off2[#off2 + 1] = {address = v.address + 0x10, flags = gg.TYPE_DOUBLE} end
+    gg.clearResults()
+    gg.loadResults(off2)
+    gg.searchNumber("1800", gg.TYPE_DOUBLE)
+    local res3 = gg.getResults(100000)
+    if #res3 == 0 then
+        gg.alert("❌ Gagal: 1800 tidak ditemukan di offset +10!")
+        return false
+    end
 
-    local match = true
-    for i = 1, 4 do
-        local val = tonumber(checkVals[i] and checkVals[i].value)
-        if val == nil or math.abs(val - expected[i]) > 0.0001 then
-            match = false
-            break
+    -- 4. Offset +0x10, cari 360
+    local off3 = {}
+    for _, v in ipairs(res3) do off3[#off3 + 1] = {address = v.address + 0x10, flags = gg.TYPE_DOUBLE} end
+    gg.clearResults()
+    gg.loadResults(off3)
+    gg.searchNumber("360", gg.TYPE_DOUBLE)
+    local res4 = gg.getResults(100000)
+    if #res4 == 0 then
+        gg.alert("❌ Gagal: 360 tidak ditemukan di offset +10!")
+        return false
+    end
+
+    -- 5. Offset -0x30, cari 300 (buat dapet base address paling awal)
+    local off4 = {}
+    for _, v in ipairs(res4) do off4[#off4 + 1] = {address = v.address - 0x30, flags = gg.TYPE_DOUBLE} end
+    gg.clearResults()
+    gg.loadResults(off4)
+    gg.searchNumber("300", gg.TYPE_DOUBLE)
+    local resFinal = gg.getResults(100000)
+    if #resFinal == 0 then
+        gg.alert("❌ Gagal: Gagal kembali ke 300 di offset -30!")
+        return false
+    end
+
+    -- 6. Tembak semua stat jadi 99999999
+    local editList = {}
+    for _, v in ipairs(resFinal) do
+        if v.address and v.address ~= 0 then
+            local base = v.address
+            editList[#editList + 1] = {address = base, flags = gg.TYPE_DOUBLE, value = 99999999}
+            editList[#editList + 1] = {address = base + 0x10, flags = gg.TYPE_DOUBLE, value = 99999999}
+            editList[#editList + 1] = {address = base + 0x20, flags = gg.TYPE_DOUBLE, value = 99999999}
+            editList[#editList + 1] = {address = base + 0x30, flags = gg.TYPE_DOUBLE, value = 99999999}
         end
     end
 
-    if not match then
-        gg.alert("❌ Gagal: Struktur stat Sanghyeon tidak cocok dengan memori. Pastikan lu lagi buka detail karakternya atau coba relog.")
+    if #editList == 0 then
+        gg.alert("❌ Gagal: Tidak ada address valid untuk diedit.")
         return false
     end
 
-    -- Tembak jadi 9999999999
-    edits = {
-        {address = anchorAddress, flags = gg.TYPE_DOUBLE, value = 9999999999},
-        {address = anchorAddress + 0x10, flags = gg.TYPE_DOUBLE, value = 9999999999},
-        {address = anchorAddress + 0x20, flags = gg.TYPE_DOUBLE, value = 9999999999},
-        {address = anchorAddress + 0x30, flags = gg.TYPE_DOUBLE, value = 9999999999}
-    }
-
-    local ok = pcall(function() gg.setValues(edits) end)
+    local ok = pcall(function() gg.setValues(editList) end)
     gg.clearResults()
+
+    -- Balikin setting memory ke pilihan awal user (Ca atau Other)
+    if MEMORY_RANGE ~= nil then
+        gg.setRanges(MEMORY_RANGE)
+    end
 
     if ok then
         gg.alert("📄 Success/done ✅\n─────────────────\nUnlimited Skill Sanghyeon Aktif!\n─────────────────")
@@ -2112,7 +2127,7 @@ function menuEditCharacter()
         return menuUtama()
     end
 
-    local finalBase = res2[1].address + 0xC0
+    local finalBase = res2[1].address - 0x1C0
 
     -- 4. Scan karakter
     local scanList = {}
@@ -2254,16 +2269,16 @@ function menuEditCharacter()
         
         -- Edit Skin
         if newSkin ~= nil then
-            editList[#editList + 1] = {address = addr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin}
+            editList[#editList + 1] = {address = addr + 0x120, flags = gg.TYPE_DOUBLE, value = newSkin}
         end
 
         -- Edit Stats (OFFSET BARU)
         if newAttack then
-            editList[#editList + 1] = {address = addr + 0x50, flags = gg.TYPE_DOUBLE, value = newAttack}
-            editList[#editList + 1] = {address = addr - 0xD0, flags = gg.TYPE_DOUBLE, value = newDefense}
-            editList[#editList + 1] = {address = addr - 0xE0, flags = gg.TYPE_DOUBLE, value = newSpeed}
-            editList[#editList + 1] = {address = addr - 0x50, flags = gg.TYPE_DOUBLE, value = newJump}
-            editList[#editList + 1] = {address = addr - 0x10, flags = gg.TYPE_DOUBLE, value = newAsc}
+            editList[#editList + 1] = {address = addr + 0xB0, flags = gg.TYPE_DOUBLE, value = newAttack}
+            editList[#editList + 1] = {address = addr + 0xF0, flags = gg.TYPE_DOUBLE, value = newDefense}
+            editList[#editList + 1] = {address = addr + 0x20, flags = gg.TYPE_DOUBLE, value = newSpeed}
+            editList[#editList + 1] = {address = addr + 0x60, flags = gg.TYPE_DOUBLE, value = newJump}
+            editList[#editList + 1] = {address = addr + 0xA0, flags = gg.TYPE_DOUBLE, value = newAsc}
         end
     end
 
@@ -2439,7 +2454,7 @@ function quickScanChar(targetPosName)
     -- Geser SEMUA hasil ke -0x30
     local off1 = {}
     for _, v in ipairs(res1) do 
-        off1[#off1+1] = {address = v.address - 0x30, flags = gg.TYPE_DOUBLE} 
+        off1[#off1+1] = {address = v.address - 0x20, flags = gg.TYPE_DOUBLE} 
     end
     gg.loadResults(off1)
 
@@ -2467,7 +2482,7 @@ function quickScanChar(targetPosName)
     -- Geser SEMUA hasil ke +0x40
     local off3 = {}
     for _, v in ipairs(res3) do 
-        off3[#off3+1] = {address = v.address + 0x40, flags = gg.TYPE_DOUBLE} 
+        off3[#off3+1] = {address = v.address + 0x30, flags = gg.TYPE_DOUBLE} 
     end
     gg.loadResults(off3)
 
@@ -2568,14 +2583,14 @@ function quickScanChar(targetPosName)
         editList[#editList + 1] = {address = targetAddr, flags = gg.TYPE_DOUBLE, value = targetCharId}
     end
     if newSkin ~= nil then
-        editList[#editList + 1] = {address = targetAddr - 0x40, flags = gg.TYPE_DOUBLE, value = newSkin}
+        editList[#editList + 1] = {address = targetAddr + 0x120, flags = gg.TYPE_DOUBLE, value = newSkin}
     end
     if newAttack then
-        editList[#editList + 1] = {address = targetAddr + 0x50, flags = gg.TYPE_DOUBLE, value = newAttack}
-        editList[#editList + 1] = {address = targetAddr - 0xD0, flags = gg.TYPE_DOUBLE, value = newDefense}
-        editList[#editList + 1] = {address = targetAddr - 0xE0, flags = gg.TYPE_DOUBLE, value = newSpeed}
-        editList[#editList + 1] = {address = targetAddr - 0x50, flags = gg.TYPE_DOUBLE, value = newJump}
-        editList[#editList + 1] = {address = targetAddr - 0x10, flags = gg.TYPE_DOUBLE, value = newAsc}
+        editList[#editList + 1] = {address = targetAddr + 0xB0, flags = gg.TYPE_DOUBLE, value = newAttack}
+        editList[#editList + 1] = {address = targetAddr + 0xF0, flags = gg.TYPE_DOUBLE, value = newDefense}
+        editList[#editList + 1] = {address = targetAddr + 0x20, flags = gg.TYPE_DOUBLE, value = newSpeed}
+        editList[#editList + 1] = {address = targetAddr + 0x60, flags = gg.TYPE_DOUBLE, value = newJump}
+        editList[#editList + 1] = {address = targetAddr + 0xA0, flags = gg.TYPE_DOUBLE, value = newAsc}
     end
 
     local ok = pcall(function() gg.setValues(editList) end)
@@ -2636,7 +2651,8 @@ function menuEditCharV2()
     
     -- Tanya mau ubah jadi apa (List Normal / Favorit)
     local pilihanMode = gg.choice({
-        "Ubah jadi Nishikawa Highschool",
+        "Nishikawa Highschool",
+        "Raul",
         "Batal"
     }, nil, "Karakter Ditemukan!\nMau ubah jadi apa?")
     
@@ -2649,6 +2665,9 @@ function menuEditCharV2()
         -- Target Nishikawa Highschool
         hexBaru = "4E 69 73 68 69 6B 61 77 61 5F 53 6B 69 6E 48 69 67 68 73 63 68 6F 6F 6C 00"
         targetName = "Nishikawa Highschool"
+    elseif pilihanMode == 2 then
+        hexBaru = "52 61 75 6C 00"
+        targetName = "Raul"
     end
     
     -- Eksekusi edit (timpa teks nama lama dengan nama baru)
@@ -2677,30 +2696,529 @@ function menuEditCharV2()
     menuEditCharV2()
 end
 
+-- ==========================================
+-- 1X INJECT ALL CHARACTER (FULL MESIN)
+-- ==========================================
+local POS_WS = {
+    [98]="Nishikawa",[296]="Siwo storm",[325]="Siwo Highlight",[164]="Nishikawa?",[99]="Nishikawa old",
+    [324]="Raul Luca",[352]="Raul Luca (Drak mode)",[351]="Sara WS",[50]="Oasis",[162]="Oasis Old",
+    [212]="Hongshi",[228]="Dave",[159]="Isabel",[30]="Jaehyeon",[251]="Jenny",[10]="Young Sup",
+    [336]="Young sub",[39]="Yunseok",[65]="Minjun",[158]="Leon",[199]="DUMMY",[79]="Kwangin",
+    [198]="Alexandro",[203]="Hoyeon",[205]="Saengwon",[207]="Seonpung",[210]="Haesu",[242]="Grace",
+    [243]="Evan",[289]="Lucian",[301]="Salvatore",[305]="Lasagna",[338]="Panna Cotta",
+    [341]="Mont Blanc",[344]="Prosciutto",[353]="VOLKOV",[355]="SERGEI",[356]="AIRA",
+    [240]="Calleb",[380]="Vice Principal",[365]="Wyat",[362]="Hyeonuk",[369]="Logan",
+    [377]="Younghoon",[24]="Benchpress",[27]="Jihwang",[49]="Brokoli",[59]="Cheolwon",[68]="Jinwoo",
+    [71]="Boreum",[82]="Seonggwang",[104]="Luminor",[235]="Oliver",[257]="Dima Orlo",
+    [181]="Benedetto",[187]="Lazio",[16]="Kakek Misterius",[42]="Arugur",[75]="Hyeonuk",
+    [85]="Kakak Kecil",[91]="Jae Seok",[220]="Hurim",[224]="Jihwan",[263]="Lars Grell",
+    [278]="Prosecco",[299]="Massimo",[327]="Vescari",[45]="Alex",[53]="Choi Raksasa",
+    [62]="Mirae",[88]="Han Beol",[94]="Amane",[101]="Jun Ho",[109]="Sota",[167]="Seokgi",
+    [174]="Francesco",[177]="Giovanni",[190]="Maximus",[193]="Anselmo",[259]="Kira",[291]="Rian",
+    [306]="Peppino",[33]="3C",[56]="Junseo",[107]="Sae Sak",[184]="Federico",[217]="Daram",
+    [272]="Pizzelle",[116]="B0 Player",[35]="Seokgyu",[281]="Bazia",[331]="Aria",[13]="Yeong Jae",
+    [315]="Duil",[5]="Inryeok",[21]="Barae",[170]="Giallo",[388]="Seo Yuna",[1] = "Siwoo"
+}
+
+local POS_MB = {
+    [387]="Han Gitae",[160]="SangHyeon",[44]="Atis",[96]="Yamadera",[19]="Heesung",[163]="Roberto",
+    [229]="Mike",[218]="Hanra",[282]="Hari MB",[308]="Seol Hwa",[350]="Yuri",[322]="Claire",
+    [334]="Isebel MB",[283]="Crow",[232]="Clyde",[374]="Saya",[202]="Taeho",[206]="Jihwi",
+    [213]="Daewoong",[262]="Oren Bel",[266]="Theo",[288]="Bruno",[293]="Enrico",[297]="Eustachio",
+    [310]="Eustachio B",[326]="Valerio",[340]="Granita",[343]="Calzone",[346]="Cacciatore",
+    [23]="Squat",[67]="Yongbi",[171]="Verde",[178]="Alessia",[269]="Alessia B",[261]="Elva",
+    [270]="Cappuccino",[274]="Cappuccino B",[271]="Barolo",[277]="Barolo B",[358]="Mia",
+    [366]="Shane",[368]="Walker",[216]="Dalji",[249]="Kazuki",[26]="Pureum",[38]="Ilbong",
+    [48]="Kevin",[74]="Jiho",[103]="Park Cheetah",[108]="Taichi",[173]="Marco",[233]="Liam",
+    [253]="Milo Zern",[258]="Jure",[186]="Piano",[29]="Yeongseok",[52]="Big Raksasa",
+    [55]="Donggeon",[58]="Min Gyu",[64]="Hyukjin",[81]="Seongjwa",[90]="Seung Seon",
+    [93]="Mizuho",[113]="Jangmi",[169]="Oslo",[183]="Giacomo",[189]="Lucius",[192]="Leopoldo",
+    [239]="Gavin",[41]="Sivir",[61]="Uiseong",[78]="Heontae",[166]="Dupal",[176]="Ricardo",
+    [280]="Cinnamiel",[32]="2KNO3",[196]="Alessia C",[223]="Donggwwan",[12]="Eunsup",
+    [15]="KwonMin",[106]="Nae Gi",[6]="Hyunsoo",[8]="Hanadu",[316]="Kim Jisam",
+    [303]="Kim Jisam B",[20]="Isijak",[76]="Dabin",[2] = "Jaeho"
+}
+
+local POS_SE = {
+    [386]="Kang Sejin",[200]="Seolhwa",[381]="Haeun",[349]="Iris",[31]="Ahyeon",[221]="Muyeong",
+    [95]="Sohee",[161]="NN",[313]="NN(Surfer)",[40]="Lisia",[230]="Sara SE",[252]="Ellio",
+    [286]="Zero",[323]="Sif",[333]="Oasis",[157]="Viola",[231]="Tania",[215]="Sodam",
+    [375]="Jihoon",[7]="Jaehyun",[364]="Dahee",[367]="Rex",[370]="Daisy",[69]="Hahyeon",
+    [244]="Hahyeon B",[97]="Shimura",[201]="Kyle",[204]="Mio",[208]="Suri",[209]="Suhan",
+    [214]="Kim Beom",[219]="Bidan",[241]="Isla",[267]="Sven",[273]="Tartufo",[290]="Miren",
+    [298]="Tiziano",[300]="Fedele",[304]="Montepulciano",[330]="Chris",[348]="Chris B",
+    [339]="Semufreddo",[342]="Cornetto",[345]="Milanese",[22]="Proteo",[54]="Choji",
+    [66]="Hyoung Sup",[89]="Seon Woo",[102]="Shin Sok",[180]="Leonardo",[191]="Ignacio",
+    [197]="Andrea",[256]="Leo Haas",[260]="Mika Dorn",[285]="NIKOLAI",[185]="Ranti",
+    [57]="Dong Yeon",[80]="Seonghun",[83]="Jini",[86]="Gwangun",[112]="Nari",[211]="Nari B",
+    [168]="Falco",[182]="Lorenzo",[188]="Marcus",[234]="Lucas",[250]="Canon",[255]="Oskar",
+    [292]="Enzo",[329]="Onyx",[354]="IVAN",[37]="Cheolsu",[43]="Robert",[47]="Paul",
+    [73]="CaCO3",[100]="Dae Hun",[110]="Jovan",[172]="Mateo",[175]="Giuseppe",
+    [179]="Valentino",[265]="Kian",[276]="Chianti",[307]="Pesto",[309]="Fedele B",[3] = "Ohjun",
+    [60]="Howon",[63]="Hang Un",[92]="Sachika",[14]="KimMin",[28]="Jaewook",[34]="Jongha",
+    [77]="Junhyung",[165]="Woo Seok",[25]="Sin Bada",[105]="Pramadara",[195]="Valentina",
+    [279]="Saffira",[11]="Sehwan",[9]="Jeongbin",[4]="Victor",[287]="Dahee",[314]="Sunhang"
+}
+
+local function getPositionByID(id)
+    local num = tonumber(id)
+    if not num then return nil end
+    if POS_WS[num] then return "WS" end
+    if POS_MB[num] then return "MB" end
+    if POS_SE[num] then return "SE" end
+    return nil
+end
+
+local function shuffleTable(t)
+    for i = #t, 2, -1 do
+        local j = math.random(i)
+        t[i], t[j] = t[j], t[i]
+    end
+end
+
+-- ==========================================
+-- FITUR CUSTOM INJECT SKILL (SAVE/LOAD FILE)
+-- ==========================================
+local customSkillFile = "/sdcard/Hanzz_Custom_Skill.txt"
+local customSkillConfig = {} -- Format: customSkillConfig[charName] = { ["Skill Asal"] = "Skill Baru" }
+
+-- Fungsi muat file custom skill
+local function loadCustomSkillConfig()
+    customSkillConfig = {}
+    local file = io.open(customSkillFile, "r")
+    if file then
+        for line in file:lines() do
+            -- Format: NamaKarakter|SkillAsal|SkillBaru
+            local charName, oldSkill, newSkill = line:match("^(.-)|(.-)|(.*)$")
+            if charName and oldSkill and newSkill then
+                if not customSkillConfig[charName] then customSkillConfig[charName] = {} end
+                customSkillConfig[charName][oldSkill] = newSkill
+            end
+        end
+        file:close()
+    end
+end
+
+-- Fungsi simpan file custom skill
+local function saveCustomSkillConfig()
+    local file = io.open(customSkillFile, "w")
+    if file then
+        for charName, skills in pairs(customSkillConfig) do
+            for oldSkill, newSkill in pairs(skills) do
+                file:write(charName .. "|" .. oldSkill .. "|" .. newSkill .. "\n")
+            end
+        end
+        file:close()
+        gg.toast("✅ Konfigurasi berhasil disimpan ke file!")
+    else
+        gg.toast("❌ Gagal menyimpan file custom skill!")
+    end
+end
+
+-- Otomatis load saat script jalan
+loadCustomSkillConfig()
+
+function menuCustomInjectSkill()
+    gg.setVisible(false)
+    
+    local m = gg.choice({
+        "➕ Tambah/Edit Skill Custom",
+        "📄 Lihat Config Tersimpan",
+        "💾 Save Config ke File",
+        "🔄 Load Config dari File",
+        "Kembali"
+    }, nil, "⚙️ Custom Inject Skill Menu")
+
+    if not m or m == 5 then return charMenu() end
+
+    if m == 1 then
+        -- Bagian Tambah/Edit Skill
+        local charListMenu = {"Kembali"}
+        local charNameList = {}
+        for charName, _ in pairs(skillDatabase) do
+            table.insert(charListMenu, charName)
+        end
+        
+        local pickCharMenu = gg.choice(charListMenu, nil, "Pilih Karakter:")
+        if not pickCharMenu or pickCharMenu == 1 then return menuCustomInjectSkill() end
+        
+        local selectedChar = charListMenu[pickCharMenu]
+        
+        local skillListMenu = {}
+        local skillNameList = {}
+        for skillName, _ in pairs(skillDatabase[selectedChar]) do
+            skillListMenu[#skillListMenu + 1] = skillName
+            skillNameList[#skillNameList + 1] = skillName
+        end
+
+        local choices = gg.multiChoice(skillListMenu, nil, "Pilih Skill " .. selectedChar .. " yang mau diedit")
+        if not choices then return menuCustomInjectSkill() end
+
+        local selectedSkills = {}
+        for i = 1, #skillListMenu do
+            if choices[i] then
+                table.insert(selectedSkills, skillNameList[i])
+            end
+        end
+
+        if #selectedSkills == 0 then
+            gg.alert("Kamu tidak memilih skill apapun!")
+            return menuCustomInjectSkill()
+        end
+
+        if not customSkillConfig[selectedChar] then customSkillConfig[selectedChar] = {} end
+
+        for i, namaSkill in ipairs(selectedSkills) do
+            local targetList = {}
+            for _, v in ipairs(allNormalSkills) do table.insert(targetList, v) end
+            
+            local pilihTarget = gg.choice(targetList, nil, "("..i.."/"..#selectedSkills..") Ubah " .. namaSkill .. " Jadi:")
+            if pilihTarget then
+                local targetName = targetList[pilihTarget]
+                customSkillConfig[selectedChar][namaSkill] = targetName
+                gg.toast("✅ " .. namaSkill .. " -> " .. targetName)
+            end
+            gg.sleep(100)
+        end
+        
+        -- Otomatis save abis ngedit
+        saveCustomSkillConfig()
+        gg.alert("✅ Konfigurasi " .. selectedChar .. " berhasil diperbarui dan disimpan!")
+        return menuCustomInjectSkill()
+        
+    elseif m == 2 then
+        -- Lihat Config
+        local text = "📄 DAFTAR CUSTOM SKILL:\n─────────────────\n"
+        local count = 0
+        for charName, skills in pairs(customSkillConfig) do
+            text = text .. "🔹 " .. charName .. "\n"
+            for oldSkill, newSkill in pairs(skills) do
+                text = text .. "   " .. oldSkill .. " ➔ " .. newSkill .. "\n"
+                count = count + 1
+            end
+        end
+        if count == 0 then text = text .. "(Belum ada skill yang dikonfigurasi)" end
+        gg.alert(text)
+        return menuCustomInjectSkill()
+        
+    elseif m == 3 then
+        saveCustomSkillConfig()
+        return menuCustomInjectSkill()
+        
+    elseif m == 4 then
+        loadCustomSkillConfig()
+        gg.alert("✅ Konfigurasi berhasil dimuat ulang dari file!")
+        return menuCustomInjectSkill()
+    end
+end
+
+function menuInjectAllRandom()
+    gg.setVisible(false)
+    loadCustomSkillConfig() 
+
+    local inputCount = gg.prompt({"Masukkan jumlah karakter yang lu punya:"}, {"55"}, {"number"})
+    if not inputCount or not inputCount[1] then return charMenu() end
+    local charCount = tonumber(inputCount[1])
+    if not charCount or charCount <= 0 then
+        gg.alert("Jumlah tidak valid!")
+        return charMenu()
+    end
+
+    -- Tanya mau inject karakter apa skill-nya
+    local charListForInject = {"Tidak ada", "Kembali"}
+    local charNameForInject = {}
+    for charName, _ in pairs(skillDatabase) do
+        table.insert(charListForInject, charName)
+    end
+    
+    local pilihInjectSkill = gg.choice(charListForInject, nil, "Pilih karakter yang skill-nya mau di-inject\n(Atau 'Tidak ada' jika tidak mau)")
+    if not pilihInjectSkill or pilihInjectSkill == 2 then return charMenu() end
+    
+    local selectedCharSkill = nil
+    if pilihInjectSkill > 1 then
+        selectedCharSkill = charListForInject[pilihInjectSkill]
+        if not customSkillConfig[selectedCharSkill] then
+            gg.alert("⚠️ Skill untuk " .. selectedCharSkill .. " belum di konfigurasi!\nSilakan atur dulu di menu Custom Inject Skill.")
+            return charMenu()
+        end
+    end
+
+    gg.clearResults()
+    gg.setRanges(MEMORY_RANGE)
+    gg.toast("Mencari alamat dasar karakter...")
+
+    -- Scan Base
+    gg.searchNumber("206398", gg.TYPE_DOUBLE)
+    local res1 = gg.getResults(100000)
+    if #res1 == 0 then
+        gg.alert("Gagal: Base address tidak ditemukan!")
+        return charMenu()
+    end
+
+    local shiftedResults = {}
+    for _, v in ipairs(res1) do
+        shiftedResults[#shiftedResults + 1] = {address = v.address - 0x10, flags = gg.TYPE_DOUBLE}
+    end
+    gg.clearResults()
+    gg.loadResults(shiftedResults)
+
+    gg.refineNumber("226618", gg.TYPE_DOUBLE)
+    local res2 = gg.getResults(100000)
+    if #res2 == 0 then
+        gg.alert("Gagal: Refine tidak ditemukan!")
+        return charMenu()
+    end
+
+    local finalBase = res2[1].address - 0x1C0
+
+    -- Kumpulkan SEMUA address dari scan
+    local scanList = {}
+    for i = 1, charCount do
+        scanList[#scanList + 1] = {address = finalBase - (i * 0x150), flags = gg.TYPE_DOUBLE}
+    end
+    gg.loadResults(scanList)
+    local values = gg.getValues(scanList)
+
+    -- Kelompokkan hasil scan
+    local detectedWS, detectedMB, detectedSE, slotKosong = {}, {}, {}, {}
+
+    local function getPos(id)
+        id = tonumber(id)
+        if not id then return nil end
+        if POS_WS[id] then return "WS" end
+        if POS_MB[id] then return "MB" end
+        if POS_SE[id] then return "SE" end
+        return nil
+    end
+
+    for _, v in ipairs(values) do
+        local id = tonumber(v.value)
+        local pos = getPos(id)
+        if pos == "WS" then
+            table.insert(detectedWS, {addr = v.address, id = id})
+        elseif pos == "MB" then
+            table.insert(detectedMB, {addr = v.address, id = id})
+        elseif pos == "SE" then
+            table.insert(detectedSE, {addr = v.address, id = id})
+        else
+            table.insert(slotKosong, {addr = v.address, id = id})
+        end
+    end
+
+    -- Input stats
+    local statsWS, statsMB, statsSE
+    if #detectedWS > 0 then
+        local p = gg.prompt({"[WS] Attack:", "[WS] Defense:", "[WS] Speed:", "[WS] Jump:", "[WS] Ascension:"}, {"200", "250", "50", "90", "5"}, {"number","number","number","number","number"})
+        if not p then return charMenu() end
+        statsWS = {atk=tonumber(p[1]) or 200, def=tonumber(p[2]) or 300, spd=tonumber(p[3]) or 50, jmp=tonumber(p[4]) or 200, asc=tonumber(p[5]) or 5}
+    end
+    if #detectedMB > 0 then
+        local p = gg.prompt({"[MB] Attack:", "[MB] Defense:", "[MB] Speed:", "[MB] Jump:", "[MB] Ascension:"}, {"50", "250", "50", "50", "5"}, {"number","number","number","number","number"})
+        if not p then return charMenu() end
+        statsMB = {atk=tonumber(p[1]) or 200, def=tonumber(p[2]) or 300, spd=tonumber(p[3]) or 50, jmp=tonumber(p[4]) or 200, asc=tonumber(p[5]) or 5}
+    end
+    if #detectedSE > 0 then
+        local p = gg.prompt({"[SE] Attack:", "[SE] Defense:", "[SE] Speed:", "[SE] Jump:", "[SE] Ascension:"}, {"50", "250", "50", "50", "5"}, {"number","number","number","number","number"})
+        if not p then return charMenu() end
+        statsSE = {atk=tonumber(p[1]) or 200, def=tonumber(p[2]) or 300, spd=tonumber(p[3]) or 50, jmp=tonumber(p[4]) or 200, asc=tonumber(p[5]) or 5}
+    end
+
+    local skinDB = {
+        [98]={1,4},[225]={7,19},[251]={17,9},[284]={22},[230]={8},[252]={16},[31]={5},[95]={12},
+        [161]={11},[40]={13},[322]={21},[218]={23,6},[282]={18},[30]={3},[159]={2,26},[231]={25},
+        [228]={10},[212]={14},[286]={15},[323]={20},[157]={24}
+    }
+
+    local wsIDs = {"98","99","164","324","352","296","325","159","284","225","351","158","251","212","50","39","65","30","10","228","388"}
+    local mbIDs = {"19","163","44","96","160","218","229","232","282","283","322","350","387"}
+    local seIDs = {"200","161","157","95","31","40","221","215","230","231","252","286","323","349","375"}
+
+    local wajibWS = {98,324,296,325,159,284,351,225,99,148,164,248}
+    local wajibMB = {387,160,96,218,282,381,322}
+    local wajibSE = {230,286,252,161,231}
+
+    local editList = {}
+
+    -- Fungsi andalan buat nembak SEMUA slot (ada perulangan otomatis)
+    local function processPos(pool, targetIDs, wajibIDs, stats)
+        if #pool == 0 then return end
+        
+        -- Siapin urutan karakter acak
+        local finalList = {}
+        local shuffledWajib = {}
+        for _, id in ipairs(wajibIDs) do table.insert(shuffledWajib, id) end
+        shuffleTable(shuffledWajib)
+
+        local shuffledSisa = {}
+        for _, id in ipairs(targetIDs) do
+            local isWajib = false
+            for _, w in ipairs(wajibIDs) do if tonumber(id) == w then isWajib = true break end end
+            if not isWajib then table.insert(shuffledSisa, id) end
+        end
+        shuffleTable(shuffledSisa)
+
+        for _, id in ipairs(shuffledWajib) do table.insert(finalList, id) end
+        for _, id in ipairs(shuffledSisa) do table.insert(finalList, id) end
+
+        local slotPlan = {}
+        local poolIdx = 1
+        local isNishikawa = function(id) return id == 98 or id == 99 or id == 164 end
+
+        -- LOOPING: Selama slot di pool masih ada, terus isi
+        while #slotPlan < #pool do
+            local charID = tonumber(finalList[poolIdx])
+            local skins = skinDB[charID]
+
+            if isNishikawa(charID) then
+                table.insert(slotPlan, {id = charID, skin = -1})
+            elseif skins and #skins >= 2 then
+                table.insert(slotPlan, {id = charID, skin = skins[1]})
+                if #slotPlan < #pool then table.insert(slotPlan, {id = charID, skin = skins[2]}) end
+            elseif skins and #skins == 1 then
+                table.insert(slotPlan, {id = charID, skin = skins[1]})
+            else
+                table.insert(slotPlan, {id = charID, skin = -1})
+            end
+            
+            poolIdx = poolIdx + 1
+            -- Kalau udah mentok ujung list, balik ke awal lagi (biar slot ga kosong)
+            if poolIdx > #finalList then poolIdx = 1 end
+        end
+
+        -- Tembak ke memory
+        for i, item in ipairs(pool) do
+            local plan = slotPlan[i]
+            if plan then
+                editList[#editList + 1] = {address = item.addr, flags = gg.TYPE_DOUBLE, value = plan.id}
+                editList[#editList + 1] = {address = item.addr + 0x120, flags = gg.TYPE_DOUBLE, value = plan.skin}
+                
+                if stats then
+                    editList[#editList + 1] = {address = item.addr + 0xB0, flags = gg.TYPE_DOUBLE, value = stats.atk}
+                    editList[#editList + 1] = {address = item.addr + 0xF0, flags = gg.TYPE_DOUBLE, value = stats.def}
+                    editList[#editList + 1] = {address = item.addr + 0x20, flags = gg.TYPE_DOUBLE, value = stats.spd}
+                    editList[#editList + 1] = {address = item.addr + 0x60, flags = gg.TYPE_DOUBLE, value = stats.jmp}
+                    editList[#editList + 1] = {address = item.addr + 0xA0, flags = gg.TYPE_DOUBLE, value = stats.asc}
+                end
+            end
+        end
+    end
+
+    -- Eksekusi semua bagian
+    processPos(detectedWS, wsIDs, wajibWS, statsWS)
+    processPos(detectedMB, mbIDs, wajibMB, statsMB)
+    processPos(detectedSE, seIDs, wajibSE, statsSE)
+    
+    -- Kalau masih ada slotKosong (Minseo Jo / Basic), ubah jadi WS acak
+    if #slotKosong > 0 then
+        local sisaStats = statsWS or {atk=200, def=300, spd=50, jmp=200, asc=5}
+        processPos(slotKosong, wsIDs, wajibWS, sisaStats)
+    end
+
+    if #editList == 0 then
+        gg.alert("Tidak ada perubahan yang diterapkan.")
+        return charMenu()
+    end
+
+    gg.toast("Menerapkan Karakter...")
+    local ok = pcall(function() gg.setValues(editList) end)
+    gg.clearResults()
+
+    -- Eksekusi Inject Skill
+    if ok and selectedCharSkill then
+        gg.toast("Mencari Skill " .. selectedCharSkill .. "...")
+        local config = customSkillConfig[selectedCharSkill]
+        local skillDatabaseChar = skillDatabase[selectedCharSkill]
+        
+        local skillEdits = {}
+        
+        for oldSkill, newSkill in pairs(config) do
+            if skillDatabaseChar[oldSkill] then
+                local searchHex = skillDatabaseChar[oldSkill].searchHex
+                local refineHex = skillDatabaseChar[oldSkill].refineHex
+                local offsetStart = skillDatabaseChar[oldSkill].offsetStart or 0
+                
+                gg.clearResults()
+                gg.setRanges(MEMORY_RANGE)
+                gg.searchNumber(searchHex, gg.TYPE_BYTE)
+                local res = gg.getResults(100000)
+                
+                if #res > 0 then
+                    gg.refineNumber(refineHex, gg.TYPE_BYTE)
+                    local targetRes = gg.getResults(100000)
+                    local finalAddress = 0
+                    if #targetRes > 0 then
+                        finalAddress = targetRes[1].address 
+                    else
+                        finalAddress = res[1].address + offsetStart
+                    end
+                    
+                    local hexBaru = ""
+                    for idx, normalName in ipairs(allNormalSkills) do
+                        if normalName == newSkill then
+                            hexBaru = allNormalHex[idx]
+                            break
+                        end
+                    end
+                    
+                    if hexBaru ~= "" then
+                        local urutan = hexToDecimalTable(hexBaru)
+                        for j = 1, #urutan do
+                            skillEdits[#skillEdits + 1] = {
+                                address = finalAddress + (j - 1),
+                                flags = gg.TYPE_BYTE,
+                                value = urutan[j]
+                            }
+                        end
+                    end
+                end
+                gg.sleep(100)
+            end
+        end
+        
+        if #skillEdits > 0 then
+            local skillOk = pcall(function() gg.setValues(skillEdits) end)
+            gg.clearResults()
+            if skillOk then
+                gg.alert("✅ Inject Skill untuk " .. selectedCharSkill .. " berhasil!")
+            else
+                gg.alert("❌ Gagal mengedit skill.")
+            end
+        else
+            gg.alert("⚠️ Skill asal tidak ditemukan di memory!")
+        end
+    end
+
+    charMenu()
+end
+
 --Pilihan char menu
 function charMenu()
     gg.setVisible(false)
     local menuTitle = "CHARACTER MENU [" .. tostring(USER_NAME) .. "] - " .. tostring(MEMORY_NAME)
     
     local menu = gg.choice ({
-    	"⭐Siwoo",
+        "⭐Siwoo",
         "⭐Ohjun",
         "⭐Jaejo",
         "👑Scan Character🔍",
+        "🎲 1x Inject All Character",
+        "⚙️ Custom Inject Skill", -- MENU BARU
         "Kembali"
     }, nil, menuTitle)
     
-    if menu == 1 then
-        quickScanChar("Siwoo")
-    elseif menu == 2 then
+    if menu == 1 then quickScanChar("Siwoo")
+    elseif menu == 2 then 
         quickScanChar("Ohjun")
-    elseif menu == 3 then
+    elseif menu == 3 then 
         quickScanChar("Jaeho")
-    elseif menu == 4 then
+    elseif menu == 4 then 
         menuEditCharacter()
-    elseif menu == 5 then
-        menuUtama()
-    end
+    elseif menu == 5 then 
+        menuInjectAllRandom()
+    elseif menu == 6 then 
+        menuCustomInjectSkill() -- FUNGSI BARU
+    elseif menu == 7 then 
+        menuUtama() end
 end
 
 --MENU UTAMA
