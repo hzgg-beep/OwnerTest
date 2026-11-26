@@ -9,7 +9,7 @@ USER_NAME = nil
 -- ==========================================
 local nameFile = "/sdcard/Hanzz_User.txt"
 local keyFile = "/sdcard/Hanzz_Key.txt"
-local RAW_PASTEBIN_URL = "https://pastebin.com/raw/REnycS4A"
+local RAW_PASTEBIN_URL = "https://pastebin.com/raw/inHTN19s"
 
 -- Pindahin deklarasi variabel global ke ATAS biar ga nil
 local backupSkills = {}
@@ -79,7 +79,7 @@ local allNormalSkills = {
     "Parry_SkinHomunculus", "Parry_SkinWedding", "RaulFirstImpact", "RedHoodRyuhyunFirstImpact",
     "RyuhyunRedhoodFurstImpact", "SkyServeLisia_SkinRudolph", "ThunderSpike_HighSchool",
     "ThunderSpike_Original", "ThunderSpike_SkinBlack", "VerticalSpike", "VerticalSpikeJenny",
-    "WhiteSpike", "Default"
+    "WhiteSpike", "Yeonkoung FirstImpact", "Default"
 }
 
 local allNormalHex = {
@@ -135,7 +135,7 @@ local allNormalHex = {
     "52 79 75 68 79 75 6E 52 65 64 68 6F 6F 64 46 75 72 73 74 49 6D 70 61 63 74 00", "53 6B 79 53 65 72 76 65 4C 69 73 69 61 5F 53 6B 69 6E 52 75 64 6F 6C 70 68 00",
     "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 48 69 67 68 53 63 68 6F 6F 6C 00", "54 68 75 6E 64 65 72 53 70 69 6B 65 00",
     "54 68 75 6E 64 65 72 53 70 69 6B 65 5F 53 6B 69 6E 42 6C 61 63 6B 00", "56 65 72 74 69 63 61 6C 53 70 69 6B 65 00",
-    "56 65 72 74 69 63 61 6C 53 70 69 6B 65 4A 65 6E 6E 79 00", "57 68 69 74 65 53 70 69 6B 65 00", "44 65 66 61 75 6C 74 00"
+    "56 65 72 74 69 63 61 6C 53 70 69 6B 65 4A 65 6E 6E 79 00", "57 68 69 74 65 53 70 69 6B 65 00", "59 65 6F 6E 6B 6F 75 6E 67 46 69 72 73 74 49 6D 70 61 63 74 00", "44 65 66 61 75 6C 74 00"
 }
 -- ==========================================
 -- KONFIGURASI TELEGRAM BOT
@@ -650,7 +650,7 @@ end
 function autoWin()
     gg.setRanges(gg.REGION_CODE_APP)
     gg.clearResults()
-    gg.searchNumber("h6C F2 0C 94 A0 1E 00 36", gg.TYPE_BYTE)
+    gg.searchNumber("h81 0C 94 A0 1E 00 36", gg.TYPE_BYTE)
     gg.refineNumber("54", gg.TYPE_BYTE)
 
     local r = gg.getResults(1)
@@ -819,7 +819,7 @@ function bypass2()
     gg.clearResults()
 
     -- 1.
-    gg.searchNumber("hE0 03 13 AA 89 38 E3 94 BC 49 E3 94 FF 43 05 D1 E9 23 0E 6D FD 7B 0F A9 FC 6F 10 A9 FA 67 11 A9", gg.TYPE_BYTE)
+    gg.searchNumber("h53 E2 94 FF 43 05 D1 E9 23 0E 6D FD 7B 0F A9 FC 6F 10 A9 FA 67 11 A9", gg.TYPE_BYTE)
     
     -- 2.
     gg.refineNumber("hFF 43 05 D1 E9 23 0E 6D FD 7B 0F A9 FC 6F 10 A9 FA 67 11 A9", gg.TYPE_BYTE)
@@ -893,7 +893,7 @@ function fastWin()
             listEdit[#listEdit + 1] = {
                 address = v.address,
                 flags = gg.TYPE_DOUBLE,
-                value = 10
+                value = 1500
             }
         end
     end
@@ -1616,7 +1616,7 @@ function menuFavoriteSkill()
         "Parry_SkinHomunculus", "Parry_SkinWedding", "RaulFirstImpact", "RedHoodRyuhyunFirstImpact",
         "RyuhyunRedhoodFurstImpact", "SkyServeLisia_SkinRudolph", "ThunderSpike_HighSchool",
         "ThunderSpike_Original", "ThunderSpike_SkinBlack", "VerticalSpike", "VerticalSpikeJenny",
-        "WhiteSpike", "Default"
+        "WhiteSpike", "YeonkoungFirstImpact", "Default"
     }
 
     local m = gg.choice({
@@ -2135,7 +2135,7 @@ function menuEditCharacter()
         return menuUtama()
     end
 
-    local finalBase = res2[1].address - 0x1D0
+    local finalBase = res2[1].address - 0x1B0
 
     -- 4. Scan karakter
     local scanList = {}
@@ -2277,16 +2277,16 @@ function menuEditCharacter()
         
         -- Edit Skin
         if newSkin ~= nil then
-            editList[#editList + 1] = {address = addr + 0x140, flags = gg.TYPE_DOUBLE, value = newSkin}
+            editList[#editList + 1] = {address = addr + 0x120, flags = gg.TYPE_DOUBLE, value = newSkin}
         end
 
         -- Edit Stats (OFFSET BARU)
         if newAttack then
-            editList[#editList + 1] = {address = addr + 0xD0, flags = gg.TYPE_DOUBLE, value = newAttack}
-            editList[#editList + 1] = {address = addr + 0x120, flags = gg.TYPE_DOUBLE, value = newDefense}
-            editList[#editList + 1] = {address = addr + 0x40, flags = gg.TYPE_DOUBLE, value = newSpeed}
-            editList[#editList + 1] = {address = addr + 0x100, flags = gg.TYPE_DOUBLE, value = newJump}
-            editList[#editList + 1] = {address = addr + 0x20, flags = gg.TYPE_DOUBLE, value = newAsc}
+            editList[#editList + 1] = {address = addr + 0x80, flags = gg.TYPE_DOUBLE, value = newAttack}
+            editList[#editList + 1] = {address = addr + 0x70, flags = gg.TYPE_DOUBLE, value = newDefense}
+            editList[#editList + 1] = {address = addr + 0x30, flags = gg.TYPE_DOUBLE, value = newSpeed}
+            editList[#editList + 1] = {address = addr + 0xB0, flags = gg.TYPE_DOUBLE, value = newJump}
+            editList[#editList + 1] = {address = addr - 0x20, flags = gg.TYPE_DOUBLE, value = newAsc}
         end
     end
 
@@ -2365,7 +2365,7 @@ function prosesMastery(namaMasteryAwal)
 
     -- 3. Offset +0x10 -> Cari ID Mastery Awal
     local off1 = {}
-    for _, v in ipairs(resChar) do off1[#off1+1] = {address = v.address + 0x10, flags = gg.TYPE_DOUBLE} end
+    for _, v in ipairs(resChar) do off1[#off1+1] = {address = v.address + 0x30, flags = gg.TYPE_DOUBLE} end
     gg.loadResults(off1)
     
     gg.searchNumber(namaMasteryAwal, gg.TYPE_DOUBLE)
@@ -2380,7 +2380,7 @@ function prosesMastery(namaMasteryAwal)
     -- ========================================================
     local off2_plus90 = {}
     for _, v in ipairs(resMastery) do 
-        off2_plus90[#off2_plus90+1] = {address = v.address + 0x90, flags = gg.TYPE_DOUBLE} 
+        off2_plus90[#off2_plus90+1] = {address = v.address - 0xA0, flags = gg.TYPE_DOUBLE} 
     end
     gg.clearResults()
     gg.loadResults(off2_plus90)
@@ -2396,8 +2396,8 @@ function prosesMastery(namaMasteryAwal)
     gg.clearResults()
 
     -- 5. Pilih Mastery Baru
-    local mMastery = gg.choice({"Veteran (1)", "Elite (2)", "Legend (3)", "Champion (4)", "Kembali"}, nil, "Pilih Mastery Baru:")
-    if not mMastery or mMastery == 5 then return masteryMenu() end
+    local mMastery = gg.choice({"Veteran (1)", "Elite (2)", "Legend (3)", "Champion (4)", "???? (5)", "Kembali"}, nil, "Pilih Mastery Baru:")
+    if not mMastery or mMastery == 6 then return masteryMenu() end
 
     local newMasteryVal = mMastery
 
@@ -2520,13 +2520,13 @@ function menuAddMastery()
 
     -- 5. Offset +0x10 -> Cari Mastery Awal
     local off1 = {}
-    for _, v in ipairs(resChar) do off1[#off1+1] = {address = v.address + 0x10, flags = gg.TYPE_DOUBLE} end
+    for _, v in ipairs(resChar) do off1[#off1+1] = {address = v.address + 0x30, flags = gg.TYPE_DOUBLE} end
     gg.loadResults(off1)
     
     gg.searchNumber(masteryAwalVal, gg.TYPE_DOUBLE)
     local resMastery = gg.getResults(100000)
     if #resMastery == 0 then
-        gg.alert("❌ Gagal: Mastery awal " .. tumbalCharName .. " tidak ditemukan di offset +10!")
+        gg.alert("❌ Gagal: Mastery awal " .. tumbalCharName .. " tidak ditemukan!")
         return masteryMenu()
     end
 
@@ -2535,7 +2535,7 @@ function menuAddMastery()
     -- ========================================================
     local off2_plus90 = {}
     for _, v in ipairs(resMastery) do 
-        off2_plus90[#off2_plus90+1] = {address = v.address + 0x90, flags = gg.TYPE_DOUBLE} 
+        off2_plus90[#off2_plus90+1] = {address = v.address - 0xA0, flags = gg.TYPE_DOUBLE} 
     end
     gg.clearResults()
     gg.loadResults(off2_plus90)
@@ -2544,15 +2544,15 @@ function menuAddMastery()
     local resFinal = gg.getResults(100000)
 
     if #resFinal == 0 then
-        gg.alert("❌ Gagal: Mastery tidak ditemukan di offset +0x90!")
+        gg.alert("❌ Gagal: Mastery tidak ditemukan!")
         return masteryMenu()
     end
     
     gg.clearResults()
 
     -- 7. Pilih Mastery Baru
-    local masteryBaruPick = gg.choice({"Veteran (1)", "Elite (2)", "Legend (3)", "Champion (4)", "Kembali"}, nil, "Pilih Mastery BARU untuk " .. targetCharName)
-    if not masteryBaruPick or masteryBaruPick == 5 then return masteryMenu() end
+    local masteryBaruPick = gg.choice({"Veteran (1)", "Elite (2)", "Legend (3)", "Champion (4)", "???? (5)", "Kembali"}, nil, "Pilih Mastery BARU untuk " .. targetCharName)
+    if not masteryBaruPick or masteryBaruPick == 6 then return masteryMenu() end
     local newMasteryVal = masteryBaruPick
 
     -- 8. Eksekusi Edit (ID Karakter di -0xA0, Mastery di titik awal)
@@ -2564,7 +2564,7 @@ function menuAddMastery()
             editList[#editList + 1] = {address = v.address, flags = gg.TYPE_DOUBLE, value = newMasteryVal}
             
             -- Ubah ID Karakter di offset -0xA0 dari titik ini
-            editList[#editList + 1] = {address = v.address - 0xA0, flags = gg.TYPE_DOUBLE, value = tonumber(targetCharId)}
+            editList[#editList + 1] = {address = v.address + 0x70, flags = gg.TYPE_DOUBLE, value = tonumber(targetCharId)}
         end
     end
 
@@ -2572,7 +2572,7 @@ function menuAddMastery()
     gg.clearResults()
 
     if ok then
-        gg.alert("✅ Berhasil!\nKarakter " .. tumbalCharName .. " telah diubah menjadi " .. targetCharName .. "\nDengan Mastery: " .. ({"Veteran", "Elite", "Legend", "Champion"})[newMasteryVal])
+        gg.alert("✅ Berhasil!\nKarakter " .. tumbalCharName .. " telah diubah menjadi " .. targetCharName .. "\nDengan Mastery: " .. ({"Veteran", "Elite", "Legend", "Champion", "????"})[newMasteryVal])
     else
         gg.alert("❌ Gagal mengedit Mastery!")
     end
@@ -2604,7 +2604,7 @@ function quickScanChar(targetPosName)
     -- Geser SEMUA hasil ke -0x30
     local off1 = {}
     for _, v in ipairs(res1) do 
-        off1[#off1+1] = {address = v.address + 0x20, flags = gg.TYPE_DOUBLE} 
+        off1[#off1+1] = {address = v.address + 0x10, flags = gg.TYPE_DOUBLE} 
     end
     gg.loadResults(off1)
 
@@ -2618,7 +2618,7 @@ function quickScanChar(targetPosName)
     -- Geser SEMUA hasil ke -0x20
     local off2 = {}
     for _, v in ipairs(res2) do 
-        off2[#off2+1] = {address = v.address + 0x120, flags = gg.TYPE_DOUBLE} 
+        off2[#off2+1] = {address = v.address + 0x40, flags = gg.TYPE_DOUBLE} 
     end
     gg.loadResults(off2)
 
@@ -2632,7 +2632,7 @@ function quickScanChar(targetPosName)
     -- Geser SEMUA hasil ke +0x40
     local off3 = {}
     for _, v in ipairs(res3) do 
-        off3[#off3+1] = {address = v.address - 0x130, flags = gg.TYPE_DOUBLE} 
+        off3[#off3+1] = {address = v.address - 0x60, flags = gg.TYPE_DOUBLE} 
     end
     gg.loadResults(off3)
 
@@ -2733,14 +2733,14 @@ function quickScanChar(targetPosName)
         editList[#editList + 1] = {address = targetAddr, flags = gg.TYPE_DOUBLE, value = targetCharId}
     end
     if newSkin ~= nil then
-        editList[#editList + 1] = {address = targetAddr + 0x140, flags = gg.TYPE_DOUBLE, value = newSkin}
+        editList[#editList + 1] = {address = targetAddr + 0x120, flags = gg.TYPE_DOUBLE, value = newSkin}
     end
     if newAttack then
-        editList[#editList + 1] = {address = targetAddr + 0xD0, flags = gg.TYPE_DOUBLE, value = newAttack}
-        editList[#editList + 1] = {address = targetAddr + 0x120, flags = gg.TYPE_DOUBLE, value = newDefense}
-        editList[#editList + 1] = {address = targetAddr + 0x40, flags = gg.TYPE_DOUBLE, value = newSpeed}
-        editList[#editList + 1] = {address = targetAddr + 0x100, flags = gg.TYPE_DOUBLE, value = newJump}
-        editList[#editList + 1] = {address = targetAddr + 0x20, flags = gg.TYPE_DOUBLE, value = newAsc}
+        editList[#editList + 1] = {address = targetAddr + 0x80, flags = gg.TYPE_DOUBLE, value = newAttack}
+        editList[#editList + 1] = {address = targetAddr + 0x70, flags = gg.TYPE_DOUBLE, value = newDefense}
+        editList[#editList + 1] = {address = targetAddr + 0x30, flags = gg.TYPE_DOUBLE, value = newSpeed}
+        editList[#editList + 1] = {address = targetAddr + 0xB0, flags = gg.TYPE_DOUBLE, value = newJump}
+        editList[#editList + 1] = {address = targetAddr - 0x20, flags = gg.TYPE_DOUBLE, value = newAsc}
     end
 
     local ok = pcall(function() gg.setValues(editList) end)
@@ -3119,7 +3119,7 @@ function menuInjectAllRandom()
         return charMenu()
     end
 
-    local finalBase = res2[1].address - 0x1D0
+    local finalBase = res2[1].address - 0x1B0
 
     -- Kumpulkan SEMUA address dari scan
     local scanList = {}
@@ -3258,14 +3258,14 @@ function menuInjectAllRandom()
 
             -- Tulis ke memory
             editList[#editList + 1] = {address = item.addr, flags = gg.TYPE_DOUBLE, value = newID}
-            editList[#editList + 1] = {address = item.addr + 0x140, flags = gg.TYPE_DOUBLE, value = newSkin}
+            editList[#editList + 1] = {address = item.addr + 0x120, flags = gg.TYPE_DOUBLE, value = newSkin}
             
             if stats then
-                editList[#editList + 1] = {address = item.addr + 0xD0, flags = gg.TYPE_DOUBLE, value = stats.atk}
-                editList[#editList + 1] = {address = item.addr + 0x120, flags = gg.TYPE_DOUBLE, value = stats.def}
-                editList[#editList + 1] = {address = item.addr + 0x40, flags = gg.TYPE_DOUBLE, value = stats.spd}
-                editList[#editList + 1] = {address = item.addr + 0x100, flags = gg.TYPE_DOUBLE, value = stats.jmp}
-                editList[#editList + 1] = {address = item.addr + 0x20, flags = gg.TYPE_DOUBLE, value = stats.asc}
+                editList[#editList + 1] = {address = item.addr + 0x80, flags = gg.TYPE_DOUBLE, value = stats.atk}
+                editList[#editList + 1] = {address = item.addr + 0x70, flags = gg.TYPE_DOUBLE, value = stats.def}
+                editList[#editList + 1] = {address = item.addr + 0x30, flags = gg.TYPE_DOUBLE, value = stats.spd}
+                editList[#editList + 1] = {address = item.addr + 0xB0, flags = gg.TYPE_DOUBLE, value = stats.jmp}
+                editList[#editList + 1] = {address = item.addr - 0x20, flags = gg.TYPE_DOUBLE, value = stats.asc}
             end
         end
     end
